@@ -11,7 +11,7 @@
 ## 디데이 내용과 디데이 날짜 넣기
 만약 "마무리 잘하기" 라는 텍스트와 함께 2024년 12월 31일을 기준으로 넣고 싶다면 디데이 위젯 주소는 아래처럼 구성하면 됩니다.
 
-> 주소/dday?content=마무리 잘하기&date=20241231
+> https://ihatelua.github.io/mini-widget/dday?content=마무리%20잘하기&date=20241231
 
 여기서 디데이 날짜도 넣고 디데이 내용도 넣으려면 중간에 "&" 문자로 구분을 해줘야 합니다.
 
@@ -26,4 +26,4 @@
  
 배경색과 글자색은 HEX 컬러값으로 전달해줘야 합니다. HEX 코드는 다양한 사이트에서 찾을 수 있습니다
 
-> 주소/dday/?content=마무리%20잘하기&date=20241231&background=CFFF00
+> https://ihatelua.github.io/mini-widget/dday/?content=마무리%20잘하기&date=20241231&background=CFFF00
