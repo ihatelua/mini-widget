@@ -9,7 +9,7 @@
 
         <title>랜덤 문자열 생성기</title>
         
-        <link href="kigui.css" rel="stylesheet">
+        <link href="lua.css" rel="stylesheet">
         <script src="script.js"></script>
         <script>
             window.addEventListener('DOMContentLoaded', function() {
@@ -52,37 +52,37 @@
         <meta charset='utf-8' />
         <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
     </head>
-    <body class="kigui one">
-        <div class="kigui header-space"></div>
-        <section class="kigui">
-            <header class="kigui header">
+    <body class="lua one">
+        <div class="lua header-space"></div>
+        <section class="lua">
+            <header class="lua header">
                 <h1 class="title">
                     랜덤 문자열 생성기
                 </h1>    
             </header>
-            <div class="kigui frame">
+            <div class="lua frame">
                 <h2>설정</h2>
                 <h4>문자 종류</h4>
                 <div class="option">
-                    <label class="kigui switch" for="largeEn">
+                    <label class="lua switch" for="largeEn">
                         <input type="checkbox" id="largeEn" checked/>
                         <div class="lever"></div>
                         <div class="bar"></div>
                         <span class="text">영어(대문자)</span>
                     </label>
-                    <label class="kigui switch" for="smallEn">
+                    <label class="lua switch" for="smallEn">
                         <input type="checkbox" id="smallEn" checked/>
                         <div class="lever"></div>
                         <div class="bar"></div>
                         <span class="text">영어(소문자)</span>
                     </label>
-                    <label class="kigui switch" for="nu">
+                    <label class="lua switch" for="nu">
                         <input type="checkbox" id="nu" checked/>
                         <div class="lever"></div>
                         <div class="bar"></div>
                         <span class="text">숫자</span>
                     </label>
-                    <label class="kigui switch" for="barcode">
+                    <label class="lua switch" for="barcode">
                         <input type="checkbox" id="barcode" />
                         <div class="lever"></div>
                         <div class="bar"></div>
@@ -90,14 +90,14 @@
                     </label>
                 </div>
                 <h4>문자 길이</h4>
-                <div class="kigui txtbox line">
+                <div class="lua txtbox line">
                     <input id="txtRandLength" type="number" />
                     <div class="uline"></div>
                 </div>
-                <button id="btnGenerateRand" class="kigui btn box">생성</button>
-                <button id="btnGenerateCopyRand" class="kigui btn box">생성 및 복사</button>
+                <button id="btnGenerateRand" class="lua btn box">생성</button>
+                <button id="btnGenerateCopyRand" class="lua btn box">생성 및 복사</button>
 
-                <div class="kigui txtbox box">
+                <div class="lua txtbox box">
                     <textarea id="resultBox"></textarea>
                     <label for="resultBox"></label>
                 </div>

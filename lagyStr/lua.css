@@ -8,28 +8,28 @@ body * {
     color: #000
 }
 
-body.kigui {
+body.lua {
     padding: 0;
     margin: 0;
     background-color: #e4e4e4
 }
 
-body.kigui.one section {
+body.lua.one section {
     max-width: 900px;
     margin: 0 auto
 }
 
-section.kigui {
+section.lua {
     padding: 10px
 }
 
-.kigui.header,.kigui.header-space {
+.lua.header,.lua.header-space {
     height: 64px;
     width: 100%;
     min-height: 64px
 }
 
-.kigui.header {
+.lua.header {
     background-color: #009ee7;
     vertical-align: middle;
     display: flex;
@@ -40,7 +40,7 @@ section.kigui {
     margin-bottom: 10px;
 }
 
-.kigui.header .title {
+.lua.header .title {
     line-height: 42px;
     margin-left: 8px;
     font-size: 24px;
@@ -48,7 +48,7 @@ section.kigui {
     color: #fafafa
 }
 
-.kigui.header .menu {
+.lua.header .menu {
     height: 24px;
     width: 24px;
     padding: 12px;
@@ -61,11 +61,11 @@ section.kigui {
     transition-duration: .3s
 }
 
-.kigui.header .menu:active {
+.lua.header .menu:active {
     background-color: #009ee7
 }
 
-.kigui.sidemenu {
+.lua.sidemenu {
     height: 100%;
     width: 250px;
     position: fixed;
@@ -77,18 +77,18 @@ section.kigui {
     box-shadow: 0 0 1px 0 rgba(0,0,0,0.2),3px 0 1px 0 rgba(0,0,0,0.12)
 }
 
-.kigui.sidemenu>h1 {
+.lua.sidemenu>h1 {
     height: 64px;
     border-bottom: 1px solid #E3E3E3;
     display: flex;
     align-items: center
 }
 
-.kigui.sidemenu nav ul {
+.lua.sidemenu nav ul {
     display: block
 }
 
-.kigui.sidemenu nav ul>li {
+.lua.sidemenu nav ul>li {
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -96,55 +96,55 @@ section.kigui {
     transition-duration: .3s
 }
 
-.kigui.sidemenu nav ul>li:hover {
+.lua.sidemenu nav ul>li:hover {
     background-color: #c7edff
 }
 
-.kigui.sidemenu nav ul>li.bl {
+.lua.sidemenu nav ul>li.bl {
     border-bottom: 1px solid #E3E3E3
 }
 
-.kigui.sidemenu nav ul>li>a {
+.lua.sidemenu nav ul>li>a {
     height: 48px;
     width: 100%;
     display: flex;
     align-items: center
 }
 
-.kigui.sidemenu nav ul>li i {
+.lua.sidemenu nav ul>li i {
     margin: 0 10px 0 10px;
     font-style: normal
 }
 
-.kigui.sidemenu nav ul>li span {
+.lua.sidemenu nav ul>li span {
     font-size: 13px
 }
 
-body.sm-en .kigui.sidemenu {
+body.sm-en .lua.sidemenu {
     transition-property: left;
     transition-duration: .3s
 }
 
-body.sm-en .kigui.header,body.sm-en section.kigui {
+body.sm-en .lua.header,body.sm-en section.lua {
     transition-property: padding;
     transition-duration: .3s
 }
 
-body.sm-on .kigui.sidemenu {
+body.sm-on .lua.sidemenu {
     left: 0
 }
 
 @media (min-width: 800px) {
-    body.sm-on .kigui.header {
+    body.sm-on .lua.header {
         padding-left:250px
     }
 
-    body.sm-on section.kigui {
+    body.sm-on section.lua {
         padding-left: 250px
     }
 }
 
-.kigui.back-cover {
+.lua.back-cover {
     height: 100%;
     width: 100%;
     position: fixed;
@@ -153,12 +153,12 @@ body.sm-on .kigui.sidemenu {
 }
 
 @media (max-width: 800px) {
-    body.sm-on .kigui.back-cover {
+    body.sm-on .lua.back-cover {
         display:block
     }
 }
 
-.kigui.btn {
+.lua.btn {
     display: inline-block;
     border: none;
     outline: none;
@@ -177,7 +177,7 @@ body.sm-on .kigui.sidemenu {
     margin-bottom: 10px;
 }
 
-.kigui.btn>i {
+.lua.btn>i {
     height: 14px;
     width: 14px;
     display: inline-block;
@@ -185,49 +185,49 @@ body.sm-on .kigui.sidemenu {
     background-size: cover
 }
 
-.kigui.btn.box {
+.lua.btn.box {
     box-shadow: 0 2px 0 -1px rgba(0,0,0,0.15),0 2px 2px 1px rgba(0,0,0,0.2);
     color: #f1f1f1
 }
 
-.kigui.btn.box:hover {
+.lua.btn.box:hover {
     background-color: #67c1fd
 }
 
-.kigui.btn.box.disabled {
+.lua.btn.box.disabled {
     background-color: #008be7
 }
 
-.kigui.btn.simple {
+.lua.btn.simple {
     box-shadow: none;
     background-color: transparent;
     color: #000
 }
 
-.kigui.btn.simple:hover {
+.lua.btn.simple:hover {
     background-color: rgba(0,0,0,0.2)
 }
 
-.kigui.btn:not(.disabled):active {
+.lua.btn:not(.disabled):active {
     box-shadow: 0 2px 3px 2px rgba(0,0,0,0.15),0 5px 6px 3px rgba(0,0,0,0.15)
 }
 
-.kigui.checkbox,.kigui.radiobox,.kigui.switch {
+.lua.checkbox,.lua.radiobox,.lua.switch {
     cursor: pointer
 }
 
-.kigui.checkbox input,.kigui.radiobox input,.kigui.switch input {
+.lua.checkbox input,.lua.radiobox input,.lua.switch input {
     display: none
 }
 
-.kigui.checkbox,.kigui.radiobox {
+.lua.checkbox,.lua.radiobox {
     height: 20px;
     text-align: left;
     vertical-align: middle;
     display: inline-block
 }
 
-.kigui.checkbox .box,.kigui.radiobox .box {
+.lua.checkbox .box,.lua.radiobox .box {
     height: 16px;
     width: 16px;
     border: 2px solid #009ee7;
@@ -240,53 +240,53 @@ body.sm-on .kigui.sidemenu {
     transition-duration: .3s
 }
 
-.kigui.checkbox .text,.kigui.radiobox .text {
+.lua.checkbox .text,.lua.radiobox .text {
     display: inline;
     position: relative;
     margin-left: 20px
 }
 
-.kigui.checkbox {
+.lua.checkbox {
     display: flex;
     flex-direction: row;
     align-items: center
 }
 
-.kigui.checkbox .box {
+.lua.checkbox .box {
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 3px
 }
 
-.kigui.checkbox .box>.material-icons {
+.lua.checkbox .box>.material-icons {
     font-size: 16px;
     color: rgba(0,0,0,0)
 }
 
-.kigui.checkbox input:checked ~ .box {
+.lua.checkbox input:checked ~ .box {
     border: none;
     background-color: #009ee7
 }
 
-.kigui.checkbox input:checked ~ .box>.material-icons {
+.lua.checkbox input:checked ~ .box>.material-icons {
     color: #c7edff
 }
 
-.kigui.radiobox {
+.lua.radiobox {
     display: flex;
     flex-direction: row;
     align-items: center
 }
 
-.kigui.radiobox .box {
+.lua.radiobox .box {
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 16px
 }
 
-.kigui.radiobox .box .cy {
+.lua.radiobox .box .cy {
     height: 8px;
     width: 8px;
     border-radius: 12px;
@@ -295,11 +295,11 @@ body.sm-on .kigui.sidemenu {
     transition-duration: .3s
 }
 
-.kigui.radiobox input:checked ~ .box>.cy {
+.lua.radiobox input:checked ~ .box>.cy {
     background-color: #009ee7
 }
 
-.kigui.switch {
+.lua.switch {
     height: 18px;
     padding-left: 30px;
     display: inline-block;
@@ -307,14 +307,14 @@ body.sm-on .kigui.sidemenu {
     vertical-align: middle
 }
 
-.kigui.switch>.text {
+.lua.switch>.text {
     display: block;
     height: 18px;
     line-height: 18px;
     margin-left: 20px
 }
 
-.kigui.switch>.bar {
+.lua.switch>.bar {
     height: 12px;
     width: 30px;
     box-shadow: 0 0 1px 0 rgba(0,0,0,0.24),0 2px 4px 0 rgba(0,0,0,0.12);
@@ -328,11 +328,11 @@ body.sm-on .kigui.sidemenu {
     transition-duration: .3s
 }
 
-.kigui.switch>input:checked ~ .bar {
+.lua.switch>input:checked ~ .bar {
     background-color: #7bc5e7
 }
 
-.kigui.switch>.lever {
+.lua.switch>.lever {
     height: 18px;
     width: 18px;
     border-radius: 15px;
@@ -345,12 +345,12 @@ body.sm-on .kigui.sidemenu {
     transition-duration: .3s
 }
 
-.kigui.switch>input:checked ~ .lever {
+.lua.switch>input:checked ~ .lever {
     left: 12px;
     background-color: #0084c2
 }
 
-.kigui.slider {
+.lua.slider {
     -webkit-appearance: none;
     height: 13px;
     outline: none;
@@ -358,7 +358,7 @@ body.sm-on .kigui.sidemenu {
     background-color: rgba(0,0,0,0)
 }
 
-.kigui.slider::-webkit-slider-thumb {
+.lua.slider::-webkit-slider-thumb {
     background: #009ee7;
     height: 13px;
     width: 13px;
@@ -369,24 +369,24 @@ body.sm-on .kigui.sidemenu {
     -webkit-appearance: none
 }
 
-.kigui.slider::-webkit-slider-runnable-track {
+.lua.slider::-webkit-slider-runnable-track {
     background: #bfe7fa;
     height: 3px;
     border-radius: 1px
 }
 
-.kigui.txtbox.box input,.kigui.txtbox.box textarea,.kigui.txtbox input {
+.lua.txtbox.box input,.lua.txtbox.box textarea,.lua.txtbox input {
     border: none;
     outline: none;
     background-color: rgba(0,0,0,0)
 }
 
-.kigui.txtbox.box {
+.lua.txtbox.box {
     position: relative;
     padding: 5px
 }
 
-.kigui.txtbox.box label {
+.lua.txtbox.box label {
     height: 100%;
     width: 100%;
     position: absolute;
@@ -400,20 +400,20 @@ body.sm-on .kigui.sidemenu {
     transition-duration: .2s
 }
 
-.kigui.txtbox.box input:focus ~ label,.kigui.txtbox.box textarea:focus ~ label {
+.lua.txtbox.box input:focus ~ label,.lua.txtbox.box textarea:focus ~ label {
     box-shadow: 0 0 1px 1px rgba(0,0,0,0.2),0 4px 4px 2px rgba(0,0,0,0.15)
 }
 
-.kigui.txtbox.box textarea {
+.lua.txtbox.box textarea {
     width: 100%;
     resize: none
 }
 
-.kigui.txtbox.line {
+.lua.txtbox.line {
     padding: 5px 5px 5px 5px
 }
 
-.kigui.txtbox.line .uline {
+.lua.txtbox.line .uline {
     height: 2px;
     width: 100%;
     margin-top: 2px;
@@ -422,24 +422,24 @@ body.sm-on .kigui.sidemenu {
     transition-duration: .3s
 }
 
-.kigui.txtbox.line :focus {
+.lua.txtbox.line :focus {
     color: #000
 }
 
-.kigui.txtbox input {
+.lua.txtbox input {
     width: 100%;
     color: #000
 }
 
-.kigui.txtbox input:focus ~ .uline {
+.lua.txtbox input:focus ~ .uline {
     background-color: #68ccfa
 }
 
-.kigui.frame h2,.kigui.frame h3,.kigui.frame h4 {
+.lua.frame h2,.lua.frame h3,.lua.frame h4 {
     font-weight: bold
 }
 
-.kigui.frame {
+.lua.frame {
     padding: 10px;
     box-shadow: 0 0 1px 0 rgba(0,0,0,0.3),0 2px 2px 0 rgba(0,0,0,0.3);
     background-color: #fff;
@@ -450,67 +450,67 @@ body.sm-on .kigui.sidemenu {
     margin-bottom: 10px
 }
 
-.kigui.frame h2 {
+.lua.frame h2 {
     font-size: 1.3em;
     margin: 8px 0 10px 0
 }
 
-.kigui.frame h3 {
+.lua.frame h3 {
     font-size: 1.2em;
     margin: 8px 0 8px 0
 }
 
-.kigui.frame h4 {
+.lua.frame h4 {
     font-size: 1.1em;
     margin: 6px 0 6px 0
 }
 
-.kigui.frame hr {
+.lua.frame hr {
     border-color: #DBDBDB
 }
 
-.kigui.frame.last {
+.lua.frame.last {
     margin-bottom: 0px
 }
 
-.kigui.frame ol,.kigui.frame ul {
+.lua.frame ol,.lua.frame ul {
     padding-left: 20px
 }
 
-.kigui.table {
+.lua.table {
     border-spacing: 0;
     box-shadow: 0 0 1px 0 rgba(0,0,0,0.3),0 2px 2px 0 rgba(0,0,0,0.3);
     border-radius: 5px
 }
 
-.kigui.table th:first-child {
+.lua.table th:first-child {
     border-top-left-radius: 5px
 }
 
-.kigui.table th:last-child {
+.lua.table th:last-child {
     border-top-right-radius: 5px
 }
 
-.kigui.table tbody tr td {
+.lua.table tbody tr td {
     border-top: 1px solid rgba(0,0,0,0.3)
 }
 
-.kigui.table tbody tr:last-child td:first-child {
+.lua.table tbody tr:last-child td:first-child {
     border-bottom-left-radius: 5px
 }
 
-.kigui.table tbody tr:last-child td:last-child {
+.lua.table tbody tr:last-child td:last-child {
     border-bottom-right-radius: 5px
 }
 
-.kigui.table td,.kigui.table th {
+.lua.table td,.lua.table th {
     padding: 5px 10px
 }
 
-.kigui.table.h tbody tr:hover {
+.lua.table.h tbody tr:hover {
     background-color: rgba(0,0,0,0.1)
 }
 
-.kigui.table.e tbody tr:nth-child(even),.kigui.table.e thead tr {
+.lua.table.e tbody tr:nth-child(even),.lua.table.e thead tr {
     background-color: rgba(0,0,0,0.3)
 }
