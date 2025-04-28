@@ -1,0 +1,516 @@
+ul,ol,li,h1,h2,h3,h4,h5,p {
+    margin: 0;
+    padding: 0
+}
+
+body * {
+    font-family: "helvetica neue", "나눔고딕", "맑은 고딕", "sans-serif";
+    color: #000
+}
+
+body.kigui {
+    padding: 0;
+    margin: 0;
+    background-color: #e4e4e4
+}
+
+body.kigui.one section {
+    max-width: 900px;
+    margin: 0 auto
+}
+
+section.kigui {
+    padding: 10px
+}
+
+.kigui.header,.kigui.header-space {
+    height: 64px;
+    width: 100%;
+    min-height: 64px
+}
+
+.kigui.header {
+    background-color: #009ee7;
+    vertical-align: middle;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 8px 8px 8px 8px;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12), 0 4px 4px 0 rgba(0, 0, 0, 0.24);
+    margin-bottom: 10px;
+}
+
+.kigui.header .title {
+    line-height: 42px;
+    margin-left: 8px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fafafa
+}
+
+.kigui.header .menu {
+    height: 24px;
+    width: 24px;
+    padding: 12px;
+    margin-left: 8px;
+    border-radius: 50px;
+    color: #fafafa;
+    user-select: none;
+    cursor: pointer;
+    transition-property: background-color;
+    transition-duration: .3s
+}
+
+.kigui.header .menu:active {
+    background-color: #009ee7
+}
+
+.kigui.sidemenu {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: -280px;
+    z-index: 1001;
+    background-color: #fff;
+    font-family: '맑은 고딕';
+    box-shadow: 0 0 1px 0 rgba(0,0,0,0.2),3px 0 1px 0 rgba(0,0,0,0.12)
+}
+
+.kigui.sidemenu>h1 {
+    height: 64px;
+    border-bottom: 1px solid #E3E3E3;
+    display: flex;
+    align-items: center
+}
+
+.kigui.sidemenu nav ul {
+    display: block
+}
+
+.kigui.sidemenu nav ul>li {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition-property: background-color;
+    transition-duration: .3s
+}
+
+.kigui.sidemenu nav ul>li:hover {
+    background-color: #c7edff
+}
+
+.kigui.sidemenu nav ul>li.bl {
+    border-bottom: 1px solid #E3E3E3
+}
+
+.kigui.sidemenu nav ul>li>a {
+    height: 48px;
+    width: 100%;
+    display: flex;
+    align-items: center
+}
+
+.kigui.sidemenu nav ul>li i {
+    margin: 0 10px 0 10px;
+    font-style: normal
+}
+
+.kigui.sidemenu nav ul>li span {
+    font-size: 13px
+}
+
+body.sm-en .kigui.sidemenu {
+    transition-property: left;
+    transition-duration: .3s
+}
+
+body.sm-en .kigui.header,body.sm-en section.kigui {
+    transition-property: padding;
+    transition-duration: .3s
+}
+
+body.sm-on .kigui.sidemenu {
+    left: 0
+}
+
+@media (min-width: 800px) {
+    body.sm-on .kigui.header {
+        padding-left:250px
+    }
+
+    body.sm-on section.kigui {
+        padding-left: 250px
+    }
+}
+
+.kigui.back-cover {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: 500;
+    display: none
+}
+
+@media (max-width: 800px) {
+    body.sm-on .kigui.back-cover {
+        display:block
+    }
+}
+
+.kigui.btn {
+    display: inline-block;
+    border: none;
+    outline: none;
+    margin: 3px 3px 3px 3px;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+    line-height: 100%;
+    text-decoration: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    background-color: #009ee7;
+    border-radius: 8px;
+    transition-property: background-color box-shadow;
+    transition-duration: .3s;
+    margin-bottom: 10px;
+}
+
+.kigui.btn>i {
+    height: 14px;
+    width: 14px;
+    display: inline-block;
+    margin-right: 4px;
+    background-size: cover
+}
+
+.kigui.btn.box {
+    box-shadow: 0 2px 0 -1px rgba(0,0,0,0.15),0 2px 2px 1px rgba(0,0,0,0.2);
+    color: #f1f1f1
+}
+
+.kigui.btn.box:hover {
+    background-color: #67c1fd
+}
+
+.kigui.btn.box.disabled {
+    background-color: #008be7
+}
+
+.kigui.btn.simple {
+    box-shadow: none;
+    background-color: transparent;
+    color: #000
+}
+
+.kigui.btn.simple:hover {
+    background-color: rgba(0,0,0,0.2)
+}
+
+.kigui.btn:not(.disabled):active {
+    box-shadow: 0 2px 3px 2px rgba(0,0,0,0.15),0 5px 6px 3px rgba(0,0,0,0.15)
+}
+
+.kigui.checkbox,.kigui.radiobox,.kigui.switch {
+    cursor: pointer
+}
+
+.kigui.checkbox input,.kigui.radiobox input,.kigui.switch input {
+    display: none
+}
+
+.kigui.checkbox,.kigui.radiobox {
+    height: 20px;
+    text-align: left;
+    vertical-align: middle;
+    display: inline-block
+}
+
+.kigui.checkbox .box,.kigui.radiobox .box {
+    height: 16px;
+    width: 16px;
+    border: 2px solid #009ee7;
+    color: transparent;
+    text-align: center;
+    line-height: 16px;
+    box-sizing: border-box;
+    user-select: none;
+    transition-property: background-color;
+    transition-duration: .3s
+}
+
+.kigui.checkbox .text,.kigui.radiobox .text {
+    display: inline;
+    position: relative;
+    margin-left: 20px
+}
+
+.kigui.checkbox {
+    display: flex;
+    flex-direction: row;
+    align-items: center
+}
+
+.kigui.checkbox .box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px
+}
+
+.kigui.checkbox .box>.material-icons {
+    font-size: 16px;
+    color: rgba(0,0,0,0)
+}
+
+.kigui.checkbox input:checked ~ .box {
+    border: none;
+    background-color: #009ee7
+}
+
+.kigui.checkbox input:checked ~ .box>.material-icons {
+    color: #c7edff
+}
+
+.kigui.radiobox {
+    display: flex;
+    flex-direction: row;
+    align-items: center
+}
+
+.kigui.radiobox .box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px
+}
+
+.kigui.radiobox .box .cy {
+    height: 8px;
+    width: 8px;
+    border-radius: 12px;
+    background-color: transparent;
+    transition-property: background-color;
+    transition-duration: .3s
+}
+
+.kigui.radiobox input:checked ~ .box>.cy {
+    background-color: #009ee7
+}
+
+.kigui.switch {
+    height: 18px;
+    padding-left: 30px;
+    display: inline-block;
+    position: relative;
+    vertical-align: middle
+}
+
+.kigui.switch>.text {
+    display: block;
+    height: 18px;
+    line-height: 18px;
+    margin-left: 20px
+}
+
+.kigui.switch>.bar {
+    height: 12px;
+    width: 30px;
+    box-shadow: 0 0 1px 0 rgba(0,0,0,0.24),0 2px 4px 0 rgba(0,0,0,0.12);
+    border-radius: 10px;
+    background-color: gray;
+    position: absolute;
+    top: 3px;
+    left: 0;
+    z-index: 1;
+    transition-property: background-color;
+    transition-duration: .3s
+}
+
+.kigui.switch>input:checked ~ .bar {
+    background-color: #7bc5e7
+}
+
+.kigui.switch>.lever {
+    height: 18px;
+    width: 18px;
+    border-radius: 15px;
+    position: absolute;
+    left: 0;
+    z-index: 2;
+    background-color: #f1f1f1;
+    box-shadow: 0 0 1px 0 rgba(0,0,0,0.3),0 3px 4px 0 rgba(0,0,0,0.3);
+    transition-property: left, background-color;
+    transition-duration: .3s
+}
+
+.kigui.switch>input:checked ~ .lever {
+    left: 12px;
+    background-color: #0084c2
+}
+
+.kigui.slider {
+    -webkit-appearance: none;
+    height: 13px;
+    outline: none;
+    cursor: pointer;
+    background-color: rgba(0,0,0,0)
+}
+
+.kigui.slider::-webkit-slider-thumb {
+    background: #009ee7;
+    height: 13px;
+    width: 13px;
+    border-radius: 13px;
+    box-shadow: 0 0 1px 0 rgba(0,0,0,0.3),0 3px 4px 0 rgba(0,0,0,0.3);
+    top: -5px;
+    position: relative;
+    -webkit-appearance: none
+}
+
+.kigui.slider::-webkit-slider-runnable-track {
+    background: #bfe7fa;
+    height: 3px;
+    border-radius: 1px
+}
+
+.kigui.txtbox.box input,.kigui.txtbox.box textarea,.kigui.txtbox input {
+    border: none;
+    outline: none;
+    background-color: rgba(0,0,0,0)
+}
+
+.kigui.txtbox.box {
+    position: relative;
+    padding: 5px
+}
+
+.kigui.txtbox.box label {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    cursor: text;
+    pointer-events: none;
+    border-radius: 5px;
+    box-shadow: 0 0 1px 1px rgba(0,0,0,0.2),0 3px 2px 0 rgba(0,0,0,0.15);
+    transition-property: box-shadow;
+    transition-duration: .2s
+}
+
+.kigui.txtbox.box input:focus ~ label,.kigui.txtbox.box textarea:focus ~ label {
+    box-shadow: 0 0 1px 1px rgba(0,0,0,0.2),0 4px 4px 2px rgba(0,0,0,0.15)
+}
+
+.kigui.txtbox.box textarea {
+    width: 100%;
+    resize: none
+}
+
+.kigui.txtbox.line {
+    padding: 5px 5px 5px 5px
+}
+
+.kigui.txtbox.line .uline {
+    height: 2px;
+    width: 100%;
+    margin-top: 2px;
+    background-color: #ace9f8;
+    transition-property: background-color color;
+    transition-duration: .3s
+}
+
+.kigui.txtbox.line :focus {
+    color: #000
+}
+
+.kigui.txtbox input {
+    width: 100%;
+    color: #000
+}
+
+.kigui.txtbox input:focus ~ .uline {
+    background-color: #68ccfa
+}
+
+.kigui.frame h2,.kigui.frame h3,.kigui.frame h4 {
+    font-weight: bold
+}
+
+.kigui.frame {
+    padding: 10px;
+    box-shadow: 0 0 1px 0 rgba(0,0,0,0.3),0 2px 2px 0 rgba(0,0,0,0.3);
+    background-color: #fff;
+    word-break: break-all;
+    font-size: 14px;
+    line-height: 1.6em;
+    border-radius: 10px;
+    margin-bottom: 10px
+}
+
+.kigui.frame h2 {
+    font-size: 1.3em;
+    margin: 8px 0 10px 0
+}
+
+.kigui.frame h3 {
+    font-size: 1.2em;
+    margin: 8px 0 8px 0
+}
+
+.kigui.frame h4 {
+    font-size: 1.1em;
+    margin: 6px 0 6px 0
+}
+
+.kigui.frame hr {
+    border-color: #DBDBDB
+}
+
+.kigui.frame.last {
+    margin-bottom: 0px
+}
+
+.kigui.frame ol,.kigui.frame ul {
+    padding-left: 20px
+}
+
+.kigui.table {
+    border-spacing: 0;
+    box-shadow: 0 0 1px 0 rgba(0,0,0,0.3),0 2px 2px 0 rgba(0,0,0,0.3);
+    border-radius: 5px
+}
+
+.kigui.table th:first-child {
+    border-top-left-radius: 5px
+}
+
+.kigui.table th:last-child {
+    border-top-right-radius: 5px
+}
+
+.kigui.table tbody tr td {
+    border-top: 1px solid rgba(0,0,0,0.3)
+}
+
+.kigui.table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 5px
+}
+
+.kigui.table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 5px
+}
+
+.kigui.table td,.kigui.table th {
+    padding: 5px 10px
+}
+
+.kigui.table.h tbody tr:hover {
+    background-color: rgba(0,0,0,0.1)
+}
+
+.kigui.table.e tbody tr:nth-child(even),.kigui.table.e thead tr {
+    background-color: rgba(0,0,0,0.3)
+}
