@@ -1,0 +1,398 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SQL Formatter | Mini Widget</title>
+  <meta name="description" content="실무 SQL을 가독성 좋게 정렬하는 SQL Formatter" />
+
+  <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg" />
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon/favicon.ico?" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="../favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sometype+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{--bg:#f6f9ff;--bg2:#edf3ff;--ink:#0f172a;--dim:#4d5b76;--line:rgba(18,38,72,.14);--card:rgba(255,255,255,.82);--sh:0 24px 58px rgba(24,48,91,.14);--ac:#2d6dff}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Space Grotesk","Noto Sans KR",sans-serif;color:var(--ink);background:radial-gradient(circle at 8% 11%,rgba(45,109,255,.16),transparent 34%),radial-gradient(circle at 92% 11%,rgba(20,184,166,.12),transparent 28%),linear-gradient(155deg,var(--bg),var(--bg2))}
+    .shell{width:min(1240px,calc(100% - 2rem));margin:clamp(18px,4vw,48px) auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+    .brand{margin:0;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);font-weight:700}
+    .back-link{text-decoration:none;color:var(--ink);font-size:.85rem;border:1px solid var(--line);background:rgba(255,255,255,.64);border-radius:999px;padding:8px 12px}
+    .card{border:1px solid var(--line);border-radius:22px;background:var(--card);box-shadow:var(--sh);backdrop-filter:blur(10px);padding:clamp(14px,2.5vw,28px)}
+    h1{margin:0;font-size:clamp(1.8rem,4vw,2.6rem)} .desc{margin:8px 0 16px;color:var(--dim)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+    select,button{border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:#fff;font:600 .88rem "Space Grotesk",sans-serif}
+    button{cursor:pointer}
+    .pri{background:linear-gradient(135deg,var(--ac),#5f89ff);border-color:transparent;color:#fff}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .panel{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.86);padding:12px}
+    .k{margin:0 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+    .k-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .k-row .k{margin:0}
+    .info-wrap{position:relative;display:inline-flex;align-items:center}
+    .info-help{
+      border:1px solid #d6dfef;
+      background:#fff;
+      border-radius:999px;
+      padding:4px 9px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:.76rem;
+      color:#50607a;
+      cursor:help;
+      user-select:none;
+      font-family:"Space Grotesk","Noto Sans KR",sans-serif;
+      transition:transform .16s ease,background-color .16s ease,border-color .16s ease;
+    }
+    .info-help:hover,.info-help:focus-visible{transform:translateY(-1px);background:#f8fbff;border-color:#bfd2fb;outline:none}
+    .info-tooltip{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(520px,88vw);
+      background:#ffffff;
+      border:1px solid #d6dfef;
+      border-radius:10px;
+      box-shadow:0 12px 28px rgba(15,23,42,.14);
+      padding:12px 13px;
+      font-size:.8rem;
+      line-height:1.58;
+      color:#334155;
+      white-space:normal;
+      text-transform:none;
+      letter-spacing:0;
+      opacity:0;
+      transform:translateY(-4px) scale(.98);
+      pointer-events:none;
+      transition:opacity .2s ease,transform .2s ease;
+      z-index:20;
+    }
+    .info-wrap:hover .info-tooltip,
+    .info-wrap:focus-within .info-tooltip{
+      opacity:1;
+      transform:translateY(0) scale(1);
+      animation:tooltipPop .22s ease;
+    }
+    @keyframes tooltipPop{
+      0%{opacity:0;transform:translateY(-6px) scale(.97)}
+      100%{opacity:1;transform:translateY(0) scale(1)}
+    }
+    .tip-title{font-weight:700;color:#0f172a;margin-bottom:6px}
+    .tip-block{margin-top:7px}
+    .tip-code{
+      margin-top:5px;
+      background:#f8fbff;
+      border:1px dashed #c8d9ff;
+      border-radius:8px;
+      padding:8px 9px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:.77rem;
+      line-height:1.5;
+      white-space:pre;
+      overflow:auto;
+    }
+    .tip-code .kw{color:#c73657;font-weight:700}
+    .tip-code .comma{color:#6d28d9;font-weight:700}
+    .tip-code .expr{color:#2563eb}
+    .tip-code .str{color:#0f766e}
+    .tip-code .op{color:#7c3aed;font-weight:700}
+    textarea{
+      width:100%;
+      min-height:330px;
+      resize:vertical;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      font:500 .94rem/1.62 "Sometype Mono","JetBrains Mono","Cascadia Mono","Consolas",monospace;
+      font-variant-ligatures:none;
+      font-feature-settings:"liga" 0, "calt" 0;
+      outline:none;
+      background:#fff
+    }
+    .meta{margin-top:8px;color:var(--dim);font-size:.84rem;min-height:1.2em}
+    @media (max-width:960px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="top">
+      <p class="brand">Mini Widget / SQL Formatter</p>
+      <a class="back-link" href="../index.html">Back to Home</a>
+    </div>
+
+    <section class="card">
+      <h1>SQL Formatter</h1>
+      <p class="desc">긴 SQL 쿼리를 읽기 좋은 형태로 자동 정렬합니다.</p>
+
+      <div class="toolbar">
+        <select id="sqlLang">
+          <option value="sql">SQL (Standard)</option>
+          <option value="mysql">MySQL</option>
+          <option value="postgresql">PostgreSQL</option>
+          <option value="sqlite">SQLite</option>
+          <option value="tsql">T-SQL</option>
+          <option value="plsql">PL/SQL</option>
+        </select>
+        <button class="pri" id="btnFormat" type="button">Format</button>
+        <button id="btnMinify" type="button">Minify-ish</button>
+        <button id="btnCopy" type="button">Copy Output</button>
+        <button id="btnSample" type="button">Load Sample</button>
+        <button id="btnClear" type="button">Clear</button>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <p class="k">Input SQL</p>
+          <textarea id="sqlInput" spellcheck="false" placeholder="SELECT * FROM users WHERE id=1;"></textarea>
+        </div>
+        <div class="panel">
+          <div class="k-row">
+            <p class="k">Output SQL</p>
+            <span class="info-wrap">
+              <button class="info-help" type="button" aria-label="output sql formatting information">ⓘ information</button>
+              <div class="info-tooltip" role="note">
+                <div class="tip-title">포맷 규칙 안내</div>
+                <div>이 출력은 <b>키워드 영역</b>과 <b>표현식 영역</b>을 분리해, 값 시작 위치를 세로 일자로 맞춥니다.</div>
+                <div class="tip-block">1. 키워드(`SELECT`, `FROM`, `WHERE`...)는 같은 폭으로 정렬</div>
+                <div class="tip-block">2. 조건/테이블/식은 항상 같은 시작 열에서 시작</div>
+                <div class="tip-block">3. `SELECT`, `GROUP BY`는 <b>leading comma</b> 형식으로 컬럼 경계 강조</div>
+                <pre class="tip-code"># 예시
+      <span class="kw">SELECT</span> <span class="expr">col_a</span>
+           <span class="comma">,</span> <span class="expr">col_b</span>
+        <span class="kw">FROM</span> <span class="expr">table_a</span>
+       <span class="kw">WHERE</span> <span class="expr">status</span> <span class="op">=</span> <span class="str">'A'</span>
+         <span class="kw">AND</span> <span class="expr">created_at</span> <span class="op">&gt;=</span> <span class="str">'2025-01-01'</span></pre>
+              </div>
+            </span>
+          </div>
+          <textarea id="sqlOutput" spellcheck="false" placeholder="결과" readonly></textarea>
+        </div>
+      </div>
+
+      <p id="statusText" class="meta" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/sql-formatter@15.6.0/dist/sql-formatter.min.js"></script>
+  <script>
+    (function(){
+      const input = document.getElementById("sqlInput");
+      const output = document.getElementById("sqlOutput");
+      const statusText = document.getElementById("statusText");
+      const sqlLang = document.getElementById("sqlLang");
+
+      function splitSqlStatements(sqlText) {
+        const chunks = [];
+        let current = "";
+        let inSingle = false;
+        let inDouble = false;
+        let inBacktick = false;
+
+        for (let i = 0; i < sqlText.length; i += 1) {
+          const ch = sqlText[i];
+          const prev = sqlText[i - 1];
+          current += ch;
+
+          if (ch === "'" && !inDouble && !inBacktick && prev !== "\\") inSingle = !inSingle;
+          else if (ch === "\"" && !inSingle && !inBacktick && prev !== "\\") inDouble = !inDouble;
+          else if (ch === "`" && !inSingle && !inDouble && prev !== "\\") inBacktick = !inBacktick;
+
+          if (ch === ";" && !inSingle && !inDouble && !inBacktick) {
+            chunks.push(current.trim());
+            current = "";
+          }
+        }
+
+        if (current.trim()) chunks.push(current.trim());
+        return chunks.filter(Boolean);
+      }
+
+      function splitTopLevelByComma(text) {
+        const parts = [];
+        let current = "";
+        let depth = 0;
+        let inSingle = false;
+        let inDouble = false;
+        let inBacktick = false;
+
+        for (let i = 0; i < text.length; i += 1) {
+          const ch = text[i];
+          const prev = text[i - 1];
+
+          if (ch === "'" && !inDouble && !inBacktick && prev !== "\\") inSingle = !inSingle;
+          else if (ch === "\"" && !inSingle && !inBacktick && prev !== "\\") inDouble = !inDouble;
+          else if (ch === "`" && !inSingle && !inDouble && prev !== "\\") inBacktick = !inBacktick;
+          else if (!inSingle && !inDouble && !inBacktick) {
+            if (ch === "(") depth += 1;
+            if (ch === ")") depth = Math.max(0, depth - 1);
+          }
+
+          if (ch === "," && depth === 0 && !inSingle && !inDouble && !inBacktick) {
+            parts.push(current.trim());
+            current = "";
+            continue;
+          }
+
+          current += ch;
+        }
+
+        if (current.trim()) parts.push(current.trim());
+        return parts;
+      }
+
+      function matchClauseKeyword(line) {
+        const clauseRx = /^(SELECT|INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN|FROM|ON|WHERE|AND|OR|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION ALL|UNION)\b/i;
+        const m = line.match(clauseRx);
+        if (!m) return null;
+        return { keyword: m[1].toUpperCase(), rest: line.slice(m[0].length).trim() };
+      }
+
+      function collectClauses(lines) {
+        const clauses = [];
+        let current = null;
+        for (const rawLine of lines) {
+          const line = rawLine.trim();
+          if (!line) continue;
+          const clause = matchClauseKeyword(line);
+          if (clause) {
+            current = { keyword: clause.keyword, text: clause.rest };
+            clauses.push(current);
+          } else if (current) {
+            current.text = current.text ? `${current.text} ${line}` : line;
+          }
+        }
+
+        const expanded = [];
+        for (const clause of clauses) {
+          if (/^(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN)$/i.test(clause.keyword) && /\s+ON\s+/i.test(clause.text || "")) {
+            const parts = (clause.text || "").split(/\s+ON\s+/i);
+            const joinTarget = (parts.shift() || "").trim();
+            const onExpr = parts.join(" ON ").trim();
+            expanded.push({ keyword: clause.keyword, text: joinTarget });
+            if (onExpr) expanded.push({ keyword: "ON", text: onExpr });
+          } else {
+            expanded.push(clause);
+          }
+        }
+        return expanded;
+      }
+
+      function renderAlignedLine(keyword, expr, keywordWidth) {
+        const key = (keyword || "").trim();
+        const rhs = (expr || "").trim();
+        if (!rhs) return key.padStart(keywordWidth);
+        return `${key.padStart(keywordWidth)} ${rhs}`;
+      }
+
+      function renderLeadingCommaLines(keyword, text, keywordWidth) {
+        const items = splitTopLevelByComma(text).map((x) => x.trim()).filter(Boolean);
+        if (!items.length) return [renderAlignedLine(keyword, "", keywordWidth)];
+        const out = [renderAlignedLine(keyword, items[0], keywordWidth)];
+        for (let i = 1; i < items.length; i += 1) {
+          out.push(renderAlignedLine(",", items[i], keywordWidth));
+        }
+        return out;
+      }
+
+      function styleStatement(statement) {
+        const trimmed = statement.trim();
+        if (!trimmed) return "";
+        const hasSemicolon = trimmed.endsWith(";");
+        const body = hasSemicolon ? trimmed.slice(0, -1).trim() : trimmed;
+        const lines = body.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+
+        const clauses = collectClauses(lines);
+        if (!clauses.length || clauses[0].keyword !== "SELECT") return trimmed;
+
+        // Fix expression start column so values are vertically aligned (visual gutter).
+        const keywordWidth = 12;
+        const styled = [];
+        for (const clause of clauses) {
+          const keyword = clause.keyword;
+          const text = (clause.text || "").trim();
+
+          if (keyword === "SELECT" || keyword === "GROUP BY") {
+            styled.push(...renderLeadingCommaLines(keyword, text, keywordWidth));
+            continue;
+          }
+
+          styled.push(renderAlignedLine(keyword, text, keywordWidth));
+        }
+
+        return styled.join("\n") + (hasSemicolon ? ";" : "");
+      }
+
+      function applyCustomAlignedStyle(sqlText) {
+        const statements = splitSqlStatements(sqlText);
+        if (!statements.length) return sqlText;
+        const styled = statements.map(styleStatement).filter(Boolean);
+        return styled.join("\n\n").replace(/\n{3,}/g, "\n\n").replace(/\s+$/, "");
+      }
+
+      function formatSql(){
+        const raw = input.value;
+        if (!raw.trim()) { output.value = ""; statusText.textContent = "입력 SQL이 비어 있습니다."; return; }
+        try {
+          const formatted = window.sqlFormatter.format(raw, {
+            language: sqlLang.value,
+            tabWidth: 2,
+            keywordCase: "upper",
+            linesBetweenQueries: 1
+          });
+          try {
+            output.value = applyCustomAlignedStyle(formatted);
+            statusText.textContent = "포맷 완료";
+          } catch (postErr) {
+            output.value = formatted;
+            statusText.textContent = "포맷 완료 (기본 스타일 fallback)";
+          }
+        } catch (e) {
+          statusText.textContent = "포맷 실패: SQL 문법 또는 언어 설정을 확인하세요.";
+        }
+      }
+
+      function minifySql(){
+        const raw = input.value;
+        if (!raw.trim()) { output.value = ""; statusText.textContent = "입력 SQL이 비어 있습니다."; return; }
+        try {
+          let f = window.sqlFormatter.format(raw, { language: sqlLang.value, tabWidth: 2, keywordCase: "upper" });
+          f = f.replace(/\n+/g, " ").replace(/\s+/g, " ").trim();
+          output.value = f;
+          statusText.textContent = "Minify-ish 완료";
+        } catch (e) {
+          statusText.textContent = "변환 실패";
+        }
+      }
+
+      function copyOutput(){
+        const text = output.value;
+        if (!text) { statusText.textContent = "복사할 결과가 없습니다."; return; }
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(() => statusText.textContent = "출력 복사 완료").catch(() => statusText.textContent = "복사 실패");
+          return;
+        }
+        const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); document.execCommand("copy"); document.body.removeChild(t);
+        statusText.textContent = "출력 복사 완료";
+      }
+
+      document.getElementById("btnFormat").addEventListener("click", formatSql);
+      document.getElementById("btnMinify").addEventListener("click", minifySql);
+      document.getElementById("btnCopy").addEventListener("click", copyOutput);
+      document.getElementById("btnClear").addEventListener("click", function(){ input.value = ""; output.value = ""; statusText.textContent = "초기화 완료"; });
+      document.getElementById("btnSample").addEventListener("click", function(){
+        input.value = "select u.id,u.name,count(o.id) as order_count from users u left join orders o on o.user_id=u.id where u.status='active' and u.created_at >= '2025-01-01' group by u.id,u.name having count(o.id) > 3 order by order_count desc limit 50;";
+        formatSql();
+      });
+
+      input.addEventListener("input", function(){ statusText.textContent = ""; });
+    })();
+  </script>
+</body>
+</html>

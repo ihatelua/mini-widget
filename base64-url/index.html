@@ -1,0 +1,192 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Base64 / URL Encode-Decode | Mini Widget</title>
+  <meta name="description" content="텍스트/이미지 Base64 변환과 URL 인코드/디코드 도구" />
+
+  <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg" />
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon/favicon.ico?" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="../favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{--bg:#f4f8ff;--bg2:#edf3ff;--ink:#0f172a;--dim:#4d5b75;--line:rgba(18,38,72,.14);--card:rgba(255,255,255,.8);--sh:0 24px 56px rgba(24,48,91,.14);--ac:#2d6dff}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Space Grotesk","Noto Sans KR",sans-serif;color:var(--ink);background:radial-gradient(circle at 9% 11%,rgba(45,109,255,.16),transparent 34%),radial-gradient(circle at 92% 11%,rgba(20,184,166,.13),transparent 28%),linear-gradient(155deg,var(--bg),var(--bg2))}
+    .shell{width:min(1240px,calc(100% - 2rem));margin:clamp(18px,4vw,48px) auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+    .brand{margin:0;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);font-weight:700}
+    .back-link{text-decoration:none;color:var(--ink);font-size:.85rem;border:1px solid var(--line);background:rgba(255,255,255,.64);border-radius:999px;padding:8px 12px}
+    .card{border:1px solid var(--line);border-radius:22px;background:var(--card);box-shadow:var(--sh);backdrop-filter:blur(10px);padding:clamp(14px,2.5vw,28px)}
+    h1{margin:0;font-size:clamp(1.8rem,4vw,2.6rem)} .desc{margin:8px 0 16px;color:var(--dim)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .panel{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.84);padding:14px}
+    .k{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:700;margin:0 0 8px}
+    textarea,input[type="text"]{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font:500 .95rem/1.55 ui-monospace,Consolas,monospace;background:rgba(255,255,255,.95);color:var(--ink);outline:none}
+    textarea{min-height:190px;resize:vertical}
+    .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    button{border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:#fff;font:600 .88rem "Space Grotesk",sans-serif;cursor:pointer}
+    .pri{background:linear-gradient(135deg,var(--ac),#5f89ff);border-color:transparent;color:#fff}
+    .meta{margin-top:8px;color:var(--dim);font-size:.84rem;min-height:1.2em}
+    .file-wrap{display:grid;gap:8px}
+    .preview{max-width:180px;max-height:120px;border-radius:10px;border:1px solid var(--line);background:#fff}
+    @media (max-width:960px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="top">
+      <p class="brand">Mini Widget / Base64 + URL Encode-Decode</p>
+      <a class="back-link" href="../index.html">Back to Home</a>
+    </div>
+
+    <section class="card">
+      <h1>Base64 / URL Encode-Decode</h1>
+      <p class="desc">텍스트와 이미지 파일을 Base64로 변환하고 URL 인코드/디코드를 빠르게 처리합니다.</p>
+
+      <div class="grid">
+        <div class="panel">
+          <p class="k">Text ↔ Base64</p>
+          <textarea id="txtInput" placeholder="원본 텍스트 또는 Base64 문자열"></textarea>
+          <div class="row">
+            <button class="pri" id="btnToBase64" type="button">Text → Base64</button>
+            <button id="btnFromBase64" type="button">Base64 → Text</button>
+            <button id="btnCopyBase64" type="button">Copy Output</button>
+          </div>
+          <textarea id="txtOutput" placeholder="결과"></textarea>
+          <p id="textStatus" class="meta" aria-live="polite"></p>
+        </div>
+
+        <div class="panel">
+          <p class="k">Image File → Base64 Data URL</p>
+          <div class="file-wrap">
+            <input id="imageFile" type="file" accept="image/*" />
+            <img id="imgPreview" class="preview" alt="preview" hidden />
+            <textarea id="imgBase64" placeholder="이미지 Base64(Data URL) 결과" readonly></textarea>
+            <div class="row">
+              <button class="pri" id="btnCopyImageBase64" type="button">Copy Image Base64</button>
+              <button id="btnDownloadTxt" type="button">Download .txt</button>
+            </div>
+            <p id="imageStatus" class="meta" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <p class="k">Text ↔ URL Encode</p>
+          <textarea id="urlInput" placeholder="URL 인코드/디코드할 텍스트"></textarea>
+          <div class="row">
+            <button class="pri" id="btnUrlEncode" type="button">Encode</button>
+            <button id="btnUrlDecode" type="button">Decode</button>
+            <button id="btnCopyUrl" type="button">Copy Output</button>
+          </div>
+          <textarea id="urlOutput" placeholder="결과"></textarea>
+          <p id="urlStatus" class="meta" aria-live="polite"></p>
+        </div>
+
+        <div class="panel">
+          <p class="k">Quick Notes</p>
+          <textarea readonly>• 이미지 변환 결과는 data:image/...;base64,... 형식입니다.
+• Base64 디코드는 UTF-8 텍스트 기준입니다.
+• URL 디코드는 잘못된 escape 문자열이면 오류가 발생할 수 있습니다.</textarea>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const txtInput = document.getElementById("txtInput");
+      const txtOutput = document.getElementById("txtOutput");
+      const textStatus = document.getElementById("textStatus");
+      const imageFile = document.getElementById("imageFile");
+      const imgPreview = document.getElementById("imgPreview");
+      const imgBase64 = document.getElementById("imgBase64");
+      const imageStatus = document.getElementById("imageStatus");
+      const urlInput = document.getElementById("urlInput");
+      const urlOutput = document.getElementById("urlOutput");
+      const urlStatus = document.getElementById("urlStatus");
+
+      function copyText(text, statusEl, okMsg) {
+        if (!text) { statusEl.textContent = "복사할 내용이 없습니다."; return; }
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(() => statusEl.textContent = okMsg).catch(() => statusEl.textContent = "복사 실패");
+          return;
+        }
+        const t = document.createElement("textarea");
+        t.value = text; document.body.appendChild(t); t.select();
+        document.execCommand("copy"); document.body.removeChild(t);
+        statusEl.textContent = okMsg;
+      }
+
+      document.getElementById("btnToBase64").addEventListener("click", function () {
+        try {
+          txtOutput.value = btoa(unescape(encodeURIComponent(txtInput.value)));
+          textStatus.textContent = "Base64 인코딩 완료";
+        } catch (e) { textStatus.textContent = "인코딩 실패"; }
+      });
+
+      document.getElementById("btnFromBase64").addEventListener("click", function () {
+        try {
+          txtOutput.value = decodeURIComponent(escape(atob(txtInput.value.trim())));
+          textStatus.textContent = "Base64 디코딩 완료";
+        } catch (e) { textStatus.textContent = "디코딩 실패: Base64 문자열을 확인하세요."; }
+      });
+
+      document.getElementById("btnCopyBase64").addEventListener("click", function () {
+        copyText(txtOutput.value, textStatus, "출력 복사 완료");
+      });
+
+      imageFile.addEventListener("change", function () {
+        const file = imageFile.files && imageFile.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const dataUrl = String(ev.target.result || "");
+          imgBase64.value = dataUrl;
+          imgPreview.src = dataUrl;
+          imgPreview.hidden = false;
+          imageStatus.textContent = `${file.name} 변환 완료 (${Math.round(file.size / 1024)} KB)`;
+        };
+        reader.onerror = function () { imageStatus.textContent = "파일 읽기 실패"; };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById("btnCopyImageBase64").addEventListener("click", function () {
+        copyText(imgBase64.value, imageStatus, "이미지 Base64 복사 완료");
+      });
+
+      document.getElementById("btnDownloadTxt").addEventListener("click", function () {
+        if (!imgBase64.value) { imageStatus.textContent = "먼저 이미지를 변환하세요."; return; }
+        const blob = new Blob([imgBase64.value], { type: "text/plain;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "image-base64.txt";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        imageStatus.textContent = "TXT 다운로드 완료";
+      });
+
+      document.getElementById("btnUrlEncode").addEventListener("click", function () {
+        try { urlOutput.value = encodeURIComponent(urlInput.value); urlStatus.textContent = "URL 인코딩 완료"; }
+        catch (e) { urlStatus.textContent = "인코딩 실패"; }
+      });
+
+      document.getElementById("btnUrlDecode").addEventListener("click", function () {
+        try { urlOutput.value = decodeURIComponent(urlInput.value); urlStatus.textContent = "URL 디코딩 완료"; }
+        catch (e) { urlStatus.textContent = "디코딩 실패: 입력을 확인하세요."; }
+      });
+
+      document.getElementById("btnCopyUrl").addEventListener("click", function () {
+        copyText(urlOutput.value, urlStatus, "출력 복사 완료");
+      });
+    })();
+  </script>
+</body>
+</html>

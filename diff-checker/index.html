@@ -1,0 +1,139 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Diff Checker | Mini Widget</title>
+  <meta name="description" content="두 텍스트를 비교해 변경사항을 시각화하는 업무형 Diff 도구" />
+
+  <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg" />
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon/favicon.ico?" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="../favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{--bg:#f5f9ff;--bg2:#edf3ff;--ink:#0f172a;--dim:#4d5b76;--line:rgba(18,38,72,.14);--card:rgba(255,255,255,.82);--sh:0 24px 58px rgba(24,48,91,.14);--ac:#2d6dff;--add:#e8fff2;--del:#ffeef1;--chg:#fff8dd}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Space Grotesk","Noto Sans KR",sans-serif;color:var(--ink);background:radial-gradient(circle at 8% 11%,rgba(45,109,255,.16),transparent 34%),radial-gradient(circle at 92% 11%,rgba(20,184,166,.12),transparent 28%),linear-gradient(155deg,var(--bg),var(--bg2))}
+    .shell{width:min(1260px,calc(100% - 2rem));margin:clamp(18px,4vw,48px) auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+    .brand{margin:0;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);font-weight:700}
+    .back-link{text-decoration:none;color:var(--ink);font-size:.85rem;border:1px solid var(--line);background:rgba(255,255,255,.64);border-radius:999px;padding:8px 12px}
+    .card{border:1px solid var(--line);border-radius:22px;background:var(--card);box-shadow:var(--sh);backdrop-filter:blur(10px);padding:clamp(14px,2.5vw,28px)}
+    h1{margin:0;font-size:clamp(1.8rem,4vw,2.6rem)} .desc{margin:8px 0 16px;color:var(--dim)}
+    .row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+    button{border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:#fff;font:600 .88rem "Space Grotesk",sans-serif;cursor:pointer}
+    .pri{background:linear-gradient(135deg,var(--ac),#5f89ff);border-color:transparent;color:#fff}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .panel{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.86);padding:12px}
+    .k{margin:0 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+    textarea{width:100%;min-height:220px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:12px;font:500 .9rem/1.55 "JetBrains Mono",Consolas,monospace;outline:none;background:#fff}
+    .result{border:1px solid var(--line);border-radius:12px;background:#fff;min-height:280px;max-height:520px;overflow:auto;padding:10px;font:500 .9rem/1.5 "JetBrains Mono",Consolas,monospace;white-space:pre-wrap;word-break:break-word}
+    .line{padding:2px 6px;border-radius:6px;margin-bottom:2px}
+    .add{background:var(--add)} .del{background:var(--del)} .eq{background:transparent}
+    .inline-del{background:#ffd7df;text-decoration:line-through} .inline-add{background:#c5f6de}
+    .meta{margin-top:8px;color:var(--dim);font-size:.84rem;min-height:1.2em}
+    @media (max-width:960px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="top">
+      <p class="brand">Mini Widget / Diff Checker</p>
+      <a class="back-link" href="../index.html">Back to Home</a>
+    </div>
+
+    <section class="card">
+      <h1>Diff Checker (Text Compare)</h1>
+      <p class="desc">원본과 수정본을 비교해서 추가/삭제/변경된 내용을 한 번에 확인합니다.</p>
+
+      <div class="row">
+        <button class="pri" id="btnCompare" type="button">Compare</button>
+        <button id="btnSwap" type="button">Swap Left/Right</button>
+        <button id="btnSample" type="button">Load Sample</button>
+        <button id="btnClear" type="button">Clear</button>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <p class="k">Left (Original)</p>
+          <textarea id="leftText" placeholder="원본 텍스트"></textarea>
+        </div>
+        <div class="panel">
+          <p class="k">Right (Modified)</p>
+          <textarea id="rightText" placeholder="수정 텍스트"></textarea>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <p class="k">Diff Result</p>
+        <div id="diffResult" class="result"></div>
+        <p id="statusText" class="meta" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/diff-match-patch@1.0.5/index.js"></script>
+  <script>
+    (function(){
+      const left = document.getElementById("leftText");
+      const right = document.getElementById("rightText");
+      const result = document.getElementById("diffResult");
+      const statusText = document.getElementById("statusText");
+      const dmp = new diff_match_patch();
+
+      function esc(s){
+        return s.replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; });
+      }
+
+      function compare(){
+        const a = left.value || "";
+        const b = right.value || "";
+        if (!a && !b) { result.innerHTML = ""; statusText.textContent = "비교할 텍스트를 입력하세요."; return; }
+
+        const lineMode = dmp.diff_linesToChars_(a, b);
+        let diffs = dmp.diff_main(lineMode.chars1, lineMode.chars2, false);
+        dmp.diff_charsToLines_(diffs, lineMode.lineArray);
+        dmp.diff_cleanupSemantic(diffs);
+
+        let adds = 0, dels = 0, same = 0;
+        const html = [];
+        diffs.forEach(function(part){
+          const op = part[0];
+          const text = part[1];
+          if (!text) return;
+          const lines = text.split("\n");
+          for (let i = 0; i < lines.length; i += 1) {
+            const ln = lines[i];
+            if (ln === "" && i === lines.length - 1) continue;
+            if (op === 1) { adds += 1; html.push(`<div class="line add">+ ${esc(ln)}</div>`); }
+            else if (op === -1) { dels += 1; html.push(`<div class="line del">- ${esc(ln)}</div>`); }
+            else { same += 1; html.push(`<div class="line eq">  ${esc(ln)}</div>`); }
+          }
+        });
+
+        const inline = dmp.diff_prettyHtml(dmp.diff_main(a, b)).replace(/<ins/g,"<ins class='inline-add'").replace(/<del/g,"<del class='inline-del'");
+        result.innerHTML = html.join("") + "\n\n<div class='line' style='background:#f8fafc;border:1px dashed #dbe3f2;margin-top:8px;'>Inline Diff Preview:\n" + inline + "</div>";
+        statusText.textContent = `추가 ${adds}줄 / 삭제 ${dels}줄 / 동일 ${same}줄`;
+      }
+
+      document.getElementById("btnCompare").addEventListener("click", compare);
+      document.getElementById("btnSwap").addEventListener("click", function(){ const t = left.value; left.value = right.value; right.value = t; compare(); });
+      document.getElementById("btnSample").addEventListener("click", function(){
+        left.value = "const api = '/v1/users';\nconst timeout = 5000;\nlet retries = 2;\nconsole.log('start');";
+        right.value = "const api = '/v2/users';\nconst timeout = 8000;\nconst retries = 3;\nconsole.log('boot');\nconsole.log('ready');";
+        compare();
+      });
+      document.getElementById("btnClear").addEventListener("click", function(){ left.value = ""; right.value = ""; result.innerHTML = ""; statusText.textContent = "초기화 완료"; });
+
+      left.addEventListener("input", compare);
+      right.addEventListener("input", compare);
+    })();
+  </script>
+</body>
+</html>

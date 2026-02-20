@@ -10,6 +10,9 @@
 - `markdown-preview/`: Markdown Previewer
 - `json-formatter/`: JSON Formatter & Validator
 - `password-strength/`: Password Strength Checker
+- `base64-url/`: Base64 / URL Encode-Decode (+ 이미지 파일 Base64 변환)
+- `diff-checker/`: Diff Checker (Text Compare)
+- `sql-formatter/`: SQL Formatter
 - `index.html`: 전체 위젯 소개 메인 페이지
 
 ## 메인 인덱스 특징
@@ -42,6 +45,24 @@
 - 문자 조합 체크리스트
 - 예상 조합 수/대입공격 시간 추정
 
+### Base64 / URL Encode-Decode
+
+- 텍스트 Base64 인코드/디코드
+- 이미지 파일 업로드 → Base64(Data URL) 변환
+- URL 인코드/디코드
+
+### Diff Checker
+
+- 좌/우 텍스트 비교
+- 라인 단위 추가/삭제 시각화
+- 인라인 변경 하이라이트
+
+### SQL Formatter
+
+- SQL 포맷팅/압축
+- DB 언어 선택(MySQL/PostgreSQL/SQLite/T-SQL/PLSQL)
+- 결과 복사
+
 ## 실행 방법
 
 1. `index.html`을 브라우저에서 직접 열기
@@ -60,7 +81,10 @@ mini-widget/
 ├─ sorting/
 ├─ markdown-preview/
 ├─ json-formatter/
-└─ password-strength/
+├─ password-strength/
+├─ base64-url/
+├─ diff-checker/
+└─ sql-formatter/
 ```
 
 ## 참고
