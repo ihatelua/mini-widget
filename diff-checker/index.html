@@ -44,34 +44,34 @@
 <body>
   <main class="shell">
     <div class="top">
-      <p class="brand">Mini Widget / Diff Checker</p>
-      <a class="back-link" href="../index.html">Back to Home</a>
+      <p class="brand">홈 / 텍스트 비교</p>
+      <a class="back-link" href="../index.html">뒤로가기</a>
     </div>
 
     <section class="card">
-      <h1>Diff Checker (Text Compare)</h1>
+      <h1>텍스트 비교</h1>
       <p class="desc">원본과 수정본을 비교해서 추가/삭제/변경된 내용을 한 번에 확인합니다.</p>
 
       <div class="row">
-        <button class="pri" id="btnCompare" type="button">Compare</button>
-        <button id="btnSwap" type="button">Swap Left/Right</button>
-        <button id="btnSample" type="button">Load Sample</button>
-        <button id="btnClear" type="button">Clear</button>
+        <button class="pri" id="btnCompare" type="button">비교하기</button>
+        <button id="btnSwap" type="button">좌우 바꾸기</button>
+        <button id="btnSample" type="button">샘플보기</button>
+        <button id="btnClear" type="button">지우기</button>
       </div>
 
       <div class="grid">
         <div class="panel">
-          <p class="k">Left (Original)</p>
+          <p class="k">왼쪽 (원본)</p>
           <textarea id="leftText" placeholder="원본 텍스트"></textarea>
         </div>
         <div class="panel">
-          <p class="k">Right (Modified)</p>
+          <p class="k">오른쪽 (수정본)</p>
           <textarea id="rightText" placeholder="수정 텍스트"></textarea>
         </div>
       </div>
 
       <div class="panel" style="margin-top:12px;">
-        <p class="k">Diff Result</p>
+        <p class="k">비교 결과</p>
         <div id="diffResult" class="result"></div>
         <p id="statusText" class="meta" aria-live="polite"></p>
       </div>

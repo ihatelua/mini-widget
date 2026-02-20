@@ -196,28 +196,28 @@
 <body>
   <main class="shell">
     <div class="top">
-      <p class="brand">Mini Widget / Markdown Previewer</p>
-      <a class="back-link" href="../index.html">Back to Home</a>
+      <p class="brand">홈 / 마크다운 프리뷰</p>
+      <a class="back-link" href="../index.html">뒤로가기</a>
     </div>
 
     <section class="card">
-      <h1>Markdown Previewer</h1>
+      <h1>마크다운 프리뷰</h1>
       <p class="desc">마크다운 문서를 실시간으로 렌더링하고 결과를 복사할 수 있는 업무형 프리뷰어.</p>
 
       <div class="toolbar">
-        <button class="btn-primary" id="btnRender" type="button">Render</button>
-        <button id="btnSample" type="button">Load Sample</button>
-        <button id="btnCopyMd" type="button">Copy Markdown</button>
-        <button id="btnClear" type="button">Clear</button>
+        <button class="btn-primary" id="btnRender" type="button">렌더링</button>
+        <button id="btnSample" type="button">샘플보기</button>
+        <button id="btnCopyMd" type="button">복사하기</button>
+        <button id="btnClear" type="button">지우기</button>
       </div>
 
       <div class="grid">
         <div class="panel">
-          <div class="panel__head">Markdown Input</div>
+          <div class="panel__head">입력</div>
           <textarea id="markdownInput" placeholder="# 회의록\n- TODO\n- 결정사항"></textarea>
         </div>
         <div class="panel">
-          <div class="panel__head">Preview</div>
+          <div class="panel__head">미리보기</div>
           <div class="preview" id="preview" aria-live="polite"></div>
         </div>
       </div>

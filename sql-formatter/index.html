@@ -123,28 +123,28 @@
 <body>
   <main class="shell">
     <div class="top">
-      <p class="brand">Mini Widget / SQL Formatter</p>
-      <a class="back-link" href="../index.html">Back to Home</a>
+      <p class="brand">홈 / SQL 포맷터</p>
+      <a class="back-link" href="../index.html">뒤로가기</a>
     </div>
 
     <section class="card">
-      <h1>SQL Formatter</h1>
+      <h1>SQL 포맷터</h1>
       <p class="desc">긴 SQL 쿼리를 읽기 좋은 형태로 자동 정렬합니다.</p>
 
       <div class="toolbar">
         <select id="sqlLang">
-          <option value="sql">SQL (Standard)</option>
+          <option value="sql">SQL (표준)</option>
           <option value="mysql">MySQL</option>
           <option value="postgresql">PostgreSQL</option>
           <option value="sqlite">SQLite</option>
           <option value="tsql">T-SQL</option>
           <option value="plsql">PL/SQL</option>
         </select>
-        <button class="pri" id="btnFormat" type="button">Format</button>
-        <button id="btnMinify" type="button">Minify-ish</button>
-        <button id="btnCopy" type="button">Copy Output</button>
-        <button id="btnSample" type="button">Load Sample</button>
-        <button id="btnClear" type="button">Clear</button>
+        <button class="pri" id="btnFormat" type="button">포맷</button>
+        <button id="btnMinify" type="button">미니멀</button>
+        <button id="btnCopy" type="button">복사하기</button>
+        <button id="btnSample" type="button">샘플보기</button>
+        <button id="btnClear" type="button">지우기</button>
       </div>
 
       <div class="grid">
@@ -187,6 +187,25 @@
       const output = document.getElementById("sqlOutput");
       const statusText = document.getElementById("statusText");
       const sqlLang = document.getElementById("sqlLang");
+
+      function protectTemplateTokens(sqlText) {
+        const stash = [];
+        const safeSql = sqlText.replace(/#\{[^}]+\}/g, function (m) {
+          const token = `__TPL_TOKEN_${stash.length}__`;
+          stash.push(m);
+          return token;
+        });
+        return { safeSql, stash };
+      }
+
+      function restoreTemplateTokens(sqlText, stash) {
+        let restored = sqlText;
+        for (let i = 0; i < stash.length; i += 1) {
+          const token = `__TPL_TOKEN_${i}__`;
+          restored = restored.split(token).join(stash[i]);
+        }
+        return restored;
+      }
 
       function splitSqlStatements(sqlText) {
         const chunks = [];
@@ -340,18 +359,20 @@
         const raw = input.value;
         if (!raw.trim()) { output.value = ""; statusText.textContent = "입력 SQL이 비어 있습니다."; return; }
         try {
-          const formatted = window.sqlFormatter.format(raw, {
+          const protectedSql = protectTemplateTokens(raw);
+          const formatted = window.sqlFormatter.format(protectedSql.safeSql, {
             language: sqlLang.value,
             tabWidth: 2,
             keywordCase: "upper",
             linesBetweenQueries: 1
           });
           try {
-            output.value = applyCustomAlignedStyle(formatted);
-            statusText.textContent = "포맷 완료";
+            const styled = applyCustomAlignedStyle(formatted);
+            output.value = restoreTemplateTokens(styled, protectedSql.stash);
+            statusText.textContent = protectedSql.stash.length ? "포맷 완료 (#{...} 템플릿 보존)" : "포맷 완료";
           } catch (postErr) {
-            output.value = formatted;
-            statusText.textContent = "포맷 완료 (기본 스타일 fallback)";
+            output.value = restoreTemplateTokens(formatted, protectedSql.stash);
+            statusText.textContent = protectedSql.stash.length ? "포맷 완료 (기본 스타일 fallback, 템플릿 보존)" : "포맷 완료 (기본 스타일 fallback)";
           }
         } catch (e) {
           statusText.textContent = "포맷 실패: SQL 문법 또는 언어 설정을 확인하세요.";
@@ -362,10 +383,11 @@
         const raw = input.value;
         if (!raw.trim()) { output.value = ""; statusText.textContent = "입력 SQL이 비어 있습니다."; return; }
         try {
-          let f = window.sqlFormatter.format(raw, { language: sqlLang.value, tabWidth: 2, keywordCase: "upper" });
+          const protectedSql = protectTemplateTokens(raw);
+          let f = window.sqlFormatter.format(protectedSql.safeSql, { language: sqlLang.value, tabWidth: 2, keywordCase: "upper" });
           f = f.replace(/\n+/g, " ").replace(/\s+/g, " ").trim();
-          output.value = f;
-          statusText.textContent = "Minify-ish 완료";
+          output.value = restoreTemplateTokens(f, protectedSql.stash);
+          statusText.textContent = protectedSql.stash.length ? "Minify-ish 완료 (#{...} 템플릿 보존)" : "Minify-ish 완료";
         } catch (e) {
           statusText.textContent = "변환 실패";
         }

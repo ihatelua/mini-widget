@@ -43,12 +43,12 @@
 <body>
   <main class="shell">
     <div class="top">
-      <p class="brand">Mini Widget / Base64 + URL Encode-Decode</p>
-      <a class="back-link" href="../index.html">Back to Home</a>
+      <p class="brand">홈 / Base64 / URL Tool</p>
+      <a class="back-link" href="../index.html">뒤로가기</a>
     </div>
 
     <section class="card">
-      <h1>Base64 / URL Encode-Decode</h1>
+      <h1>Base64 / URL Tool</h1>
       <p class="desc">텍스트와 이미지 파일을 Base64로 변환하고 URL 인코드/디코드를 빠르게 처리합니다.</p>
 
       <div class="grid">
@@ -56,23 +56,23 @@
           <p class="k">Text ↔ Base64</p>
           <textarea id="txtInput" placeholder="원본 텍스트 또는 Base64 문자열"></textarea>
           <div class="row">
-            <button class="pri" id="btnToBase64" type="button">Text → Base64</button>
-            <button id="btnFromBase64" type="button">Base64 → Text</button>
-            <button id="btnCopyBase64" type="button">Copy Output</button>
+            <button class="pri" id="btnToBase64" type="button">텍스트 → Base64</button>
+            <button id="btnFromBase64" type="button">Base64 → 텍스트</button>
+            <button id="btnCopyBase64" type="button">복사하기</button>
           </div>
           <textarea id="txtOutput" placeholder="결과"></textarea>
           <p id="textStatus" class="meta" aria-live="polite"></p>
         </div>
 
         <div class="panel">
-          <p class="k">Image File → Base64 Data URL</p>
+          <p class="k">이미지 파일 → Base64 Data URL</p>
           <div class="file-wrap">
             <input id="imageFile" type="file" accept="image/*" />
             <img id="imgPreview" class="preview" alt="preview" hidden />
             <textarea id="imgBase64" placeholder="이미지 Base64(Data URL) 결과" readonly></textarea>
             <div class="row">
-              <button class="pri" id="btnCopyImageBase64" type="button">Copy Image Base64</button>
-              <button id="btnDownloadTxt" type="button">Download .txt</button>
+              <button class="pri" id="btnCopyImageBase64" type="button">이미지 Base64 복사</button>
+              <button id="btnDownloadTxt" type="button">.txt 다운로드</button>
             </div>
             <p id="imageStatus" class="meta" aria-live="polite"></p>
           </div>
@@ -82,9 +82,9 @@
           <p class="k">Text ↔ URL Encode</p>
           <textarea id="urlInput" placeholder="URL 인코드/디코드할 텍스트"></textarea>
           <div class="row">
-            <button class="pri" id="btnUrlEncode" type="button">Encode</button>
-            <button id="btnUrlDecode" type="button">Decode</button>
-            <button id="btnCopyUrl" type="button">Copy Output</button>
+            <button class="pri" id="btnUrlEncode" type="button">인코딩</button>
+            <button id="btnUrlDecode" type="button">디코딩</button>
+            <button id="btnCopyUrl" type="button">복사하기</button>
           </div>
           <textarea id="urlOutput" placeholder="결과"></textarea>
           <p id="urlStatus" class="meta" aria-live="polite"></p>
