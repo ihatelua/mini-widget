@@ -1,107 +1,433 @@
-<!DOCTYPE HTML>
-<html>
-    <head>
-        <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96" />
-        <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg" />
-        <link rel="shortcut icon" type="image/x-icon" href="../favicon/favicon.ico?" />
-        <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png" />
-        <link rel="manifest" href="../favicon/site.webmanifest" />
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="랜덤 문자열 생성기 - 문자셋과 길이를 선택해 안전한 문자열을 생성합니다." />
+  <title>Random String Generator | Mini Widget</title>
 
-        <title>랜덤 문자열 생성기</title>
-        
-        <link href="lua.css" rel="stylesheet">
-        <script src="script.js"></script>
-        <script>
-            window.addEventListener('DOMContentLoaded', function() {
-                var number = document.getElementById('nu');
-                var smallEn = document.getElementById('smallEn');
-                var largeEn = document.getElementById('largeEn');
-                var barcode = document.getElementById('barcode');
-                var txtRandLength = document.getElementById('txtRandLength');
+  <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg" />
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon/favicon.ico?" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="../favicon/site.webmanifest" />
 
-                var genereateRandEvent = function() {
-                    var val = '';
-                    val += number.checked ? '1' : '';
-                    val += smallEn.checked ? 'a' : '';
-                    val += largeEn.checked ? 'A' : '';
-                    val += barcode.checked ? 'i' : '';
-                    var length = 4;
-                    length = parseInt(txtRandLength.value);
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script defer src="script.js"></script>
 
-                    document.getElementById('resultBox').value = new RandomString(val, length).toString();
-                }
-                document.getElementById('btnGenerateRand').onclick = genereateRandEvent;
-                document.getElementById('btnGenerateCopyRand').onclick = function() {
-                    genereateRandEvent();
-                    var copyArea = document.createElement('textarea');
-                    copyArea.value = document.getElementById('resultBox').value;
-                    document.body.appendChild(copyArea);
-                    copyArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(copyArea);
-                };
-            });
-        </script>
-        <style>
-            .option {
-                display:flex;
-                justify-content: space-around;
-                padding:10px 0 10px 0;
-            }
-        </style>
-        <meta charset='utf-8' />
-        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
-    </head>
-    <body class="lua one">
-        <div class="lua header-space"></div>
-        <section class="lua">
-            <header class="lua header">
-                <h1 class="title">
-                    랜덤 문자열 생성기
-                </h1>    
-            </header>
-            <div class="lua frame">
-                <h2>설정</h2>
-                <h4>문자 종류</h4>
-                <div class="option">
-                    <label class="lua switch" for="largeEn">
-                        <input type="checkbox" id="largeEn" checked/>
-                        <div class="lever"></div>
-                        <div class="bar"></div>
-                        <span class="text">영어(대문자)</span>
-                    </label>
-                    <label class="lua switch" for="smallEn">
-                        <input type="checkbox" id="smallEn" checked/>
-                        <div class="lever"></div>
-                        <div class="bar"></div>
-                        <span class="text">영어(소문자)</span>
-                    </label>
-                    <label class="lua switch" for="nu">
-                        <input type="checkbox" id="nu" checked/>
-                        <div class="lever"></div>
-                        <div class="bar"></div>
-                        <span class="text">숫자</span>
-                    </label>
-                    <label class="lua switch" for="barcode">
-                        <input type="checkbox" id="barcode" />
-                        <div class="lever"></div>
-                        <div class="bar"></div>
-                        <span class="text">바코드</span>
-                    </label>
-                </div>
-                <h4>문자 길이</h4>
-                <div class="lua txtbox line">
-                    <input id="txtRandLength" type="number" />
-                    <div class="uline"></div>
-                </div>
-                <button id="btnGenerateRand" class="lua btn box">생성</button>
-                <button id="btnGenerateCopyRand" class="lua btn box">생성 및 복사</button>
+  <style>
+    :root {
+      --bg: #f4f8ff;
+      --bg-2: #eef2fb;
+      --ink: #0f1624;
+      --ink-dim: #4f5c74;
+      --line: rgba(25, 43, 76, 0.14);
+      --card: rgba(255, 255, 255, 0.74);
+      --accent: #2968ff;
+      --accent-2: #1cb894;
+      --shadow: 0 24px 60px rgba(33, 52, 87, 0.15);
+    }
 
-                <div class="lua txtbox box">
-                    <textarea id="resultBox"></textarea>
-                    <label for="resultBox"></label>
-                </div>
-            </div>
-        </section>
-    </body>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Space Grotesk", "Pretendard", "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 14%, rgba(41, 104, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 85% 10%, rgba(28, 184, 148, 0.14), transparent 28%),
+        linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 100%);
+    }
+
+    .shell {
+      width: min(1160px, calc(100% - 2rem));
+      margin: clamp(20px, 5vw, 56px) auto;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 0.78rem;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      font-weight: 600;
+    }
+
+    .back-link {
+      color: var(--ink);
+      font-size: 0.85rem;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(10px);
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--card);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 4vw, 32px);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .desc {
+      margin: 10px 0 24px;
+      color: var(--ink-dim);
+      line-height: 1.55;
+      font-size: 0.98rem;
+      max-width: 58ch;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.66);
+      padding: 14px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+
+    .chips {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .chip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.78);
+      padding: 11px 12px;
+      font-size: 0.92rem;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .chip:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--line), var(--accent) 36%);
+    }
+
+    .chip input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chip-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #b9c4da;
+      transition: background-color 0.2s ease;
+    }
+
+    .chip input:checked + .chip-name + .chip-dot {
+      background: var(--accent);
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .field label {
+      font-size: 0.85rem;
+      color: var(--ink-dim);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    input[type="number"],
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--ink);
+      font: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="number"]:focus,
+    textarea:focus {
+      border-color: color-mix(in srgb, var(--accent), white 28%);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent), white 83%);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.03);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #5f89ff);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.8);
+      border-color: var(--line);
+      color: var(--ink);
+    }
+
+    #resultBox {
+      min-height: 136px;
+      resize: vertical;
+      font-size: 1rem;
+      letter-spacing: 0.03em;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 0.84rem;
+      color: var(--ink-dim);
+      min-height: 1.3em;
+    }
+
+    .meta {
+      display: grid;
+      gap: 8px;
+      color: var(--ink-dim);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .meta kbd {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--ink);
+    }
+
+    @media (max-width: 780px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .chips {
+        grid-template-columns: 1fr;
+      }
+      .actions {
+        flex-wrap: wrap;
+      }
+      button {
+        flex: 1;
+        min-width: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="top">
+      <p class="brand">Mini Widget / Random String</p>
+      <a class="back-link" href="../index.html">Back to Home</a>
+    </div>
+
+    <section class="card">
+      <h1>랜덤 문자열 생성기</h1>
+      <p class="desc">문자 조합과 길이를 선택해 무작위 문자열을 빠르게 생성합니다. 비밀번호 샘플, 테스트 데이터, 토큰 예시에 사용하세요.</p>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>Character Set</h2>
+          <div class="chips">
+            <label class="chip" for="largeEn">
+              <input type="checkbox" id="largeEn" checked />
+              <span class="chip-name">영문 대문자 (A-Z)</span>
+              <span class="chip-dot"></span>
+            </label>
+            <label class="chip" for="smallEn">
+              <input type="checkbox" id="smallEn" checked />
+              <span class="chip-name">영문 소문자 (a-z)</span>
+              <span class="chip-dot"></span>
+            </label>
+            <label class="chip" for="nu">
+              <input type="checkbox" id="nu" checked />
+              <span class="chip-name">숫자 (0-9)</span>
+              <span class="chip-dot"></span>
+            </label>
+            <label class="chip" for="barcode">
+              <input type="checkbox" id="barcode" />
+              <span class="chip-name">유사문자 포함 (I, l)</span>
+              <span class="chip-dot"></span>
+            </label>
+          </div>
+
+          <div class="field">
+            <label for="txtRandLength">Length</label>
+            <input id="txtRandLength" type="number" min="1" max="512" value="16" />
+          </div>
+
+          <div class="actions">
+            <button id="btnGenerateRand" class="btn-primary" type="button">생성</button>
+            <button id="btnGenerateCopyRand" class="btn-secondary" type="button">생성 후 복사</button>
+          </div>
+
+          <p class="status" id="statusText" aria-live="polite"></p>
+        </div>
+
+        <div class="panel">
+          <h2>Result</h2>
+          <div class="field">
+            <label for="resultBox">Generated String</label>
+            <textarea id="resultBox" readonly placeholder="여기에 생성 결과가 표시됩니다."></textarea>
+          </div>
+          <div class="meta">
+            <div><kbd>Enter</kbd> 생성</div>
+            <div><kbd>Ctrl</kbd> + <kbd>C</kbd> 수동 복사</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      var number = document.getElementById("nu");
+      var smallEn = document.getElementById("smallEn");
+      var largeEn = document.getElementById("largeEn");
+      var barcode = document.getElementById("barcode");
+      var txtRandLength = document.getElementById("txtRandLength");
+      var resultBox = document.getElementById("resultBox");
+      var statusText = document.getElementById("statusText");
+
+      function getTypeToken() {
+        var val = "";
+        val += number.checked ? "1" : "";
+        val += smallEn.checked ? "a" : "";
+        val += largeEn.checked ? "A" : "";
+        val += barcode.checked ? "i" : "";
+        return val;
+      }
+
+      function generate() {
+        var type = getTypeToken();
+        var length = parseInt(txtRandLength.value, 10);
+
+        if (!type) {
+          statusText.textContent = "최소 1개 이상의 문자 종류를 선택하세요.";
+          resultBox.value = "";
+          return false;
+        }
+
+        if (!Number.isFinite(length) || length < 1) {
+          length = 4;
+          txtRandLength.value = "4";
+        }
+
+        try {
+          resultBox.value = new RandomString(type, length).toString();
+          statusText.textContent = "문자열이 생성되었습니다.";
+          return true;
+        } catch (err) {
+          statusText.textContent = "생성 중 오류가 발생했습니다: " + err.message;
+          resultBox.value = "";
+          return false;
+        }
+      }
+
+      function fallbackCopy(text) {
+        var copyArea = document.createElement("textarea");
+        copyArea.value = text;
+        document.body.appendChild(copyArea);
+        copyArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(copyArea);
+      }
+
+      async function generateAndCopy() {
+        if (!generate()) return;
+        var text = resultBox.value;
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            fallbackCopy(text);
+          }
+          statusText.textContent = "생성 후 클립보드에 복사했습니다.";
+        } catch (err) {
+          statusText.textContent = "복사에 실패했습니다. 수동 복사를 사용하세요.";
+        }
+      }
+
+      document.getElementById("btnGenerateRand").addEventListener("click", generate);
+      document.getElementById("btnGenerateCopyRand").addEventListener("click", generateAndCopy);
+
+      txtRandLength.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          generate();
+        }
+      });
+
+      generate();
+    });
+  </script>
+</body>
 </html>

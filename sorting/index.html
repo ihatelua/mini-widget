@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang='ko'>
+<head>
+  <meta charset='utf-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <title>Sorting Visualizer</title>
+  <link rel='stylesheet' href='css/main.css' />
+  <link rel='stylesheet' href='css/controls.css' />
+</head>
+<body>
+
+<div class="top">
+  <p class="brand">Mini Widget / Sorting Visualizer</p>
+  <a class="back-link" href="../index.html">Back to Home</a>
+</div>
+
+<section class='algo-card' id='algoCard'>
+  <div class='algo-card__head'>
+    <div>
+      <div class='algo-card__title' id='algoTitle'>알고리즘</div>
+      <div class='algo-card__status' id='algoStatus'>대기 중</div>
+    </div>
+    <div class='algo-card__meta' id='algoMeta'>복잡도: - / 안정성: -</div>
+  </div>
+
+  <div class='algo-card__desc' id='algoDesc'>
+    알고리즘을 선택하면 여기 설명이 표시됩니다.
+  </div>
+
+  <!-- 추가: 실시간 카운터/진행률 패널 -->
+  <div class="stats" id="stats">
+    <div class="stat">
+      <div class="stat__k">비교</div>
+      <div class="stat__v" id="statCompare">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat__k">스왑</div>
+      <div class="stat__v" id="statSwap">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat__k">WRITE</div>
+      <div class="stat__v" id="statWrite">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat__k">패스</div>
+      <div class="stat__v" id="statPass">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat__k">경과</div>
+      <div class="stat__v" id="statElapsed">00:00.0</div>
+    </div>
+    <div class="stat stat--wide">
+      <div class="stat__k">진행률</div>
+      <div class="stat__v"><span id="statProgressText">0%</span></div>
+      <div class="progress" aria-label="정렬 진행률">
+        <div class="progress__bar" id="statProgressBar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="point-hint" id="pointHint" aria-live="polite"></div>
+
+</section>
+
+<section class='controls'>
+  <select id='algo'></select>
+  <button id='random'>RANDOM</button>
+  <label>
+    COUNT
+    <input id='count' type='range' min='5' max='40' value='20' />
+  </label>
+  <label>
+    SPEED
+    <input id='speed' type='range' min='0' max='100' value='55' />
+  </label>
+  <label class='toggle'>
+    DESC
+    <input id='direction' type='checkbox' />
+  </label>
+  <button id='go'>GO</button>
+  <button id='pause'>PAUSE</button>
+  <button id='resume'>RESUME</button>
+  <button id='stop'>STOP</button>
+  <button id="helpBtn" class="help-btn" type="button" aria-haspopup="dialog" aria-controls="helpDialog" aria-expanded="false">?</button>
+
+  <!-- Mini HUD (top-right) -->
+  <div id="miniHud" class="mini-hud" aria-live="polite">
+    <span class="hud__status" id="hudStatus">IDLE</span>
+    <span class="hud__sep">·</span>
+    <span class="hud__algo" id="hudAlgo">-</span>
+    <span class="hud__sep">·</span>
+    <span class="hud__speed" id="hudSpeed">-</span>
+  </div>
+</section>
+
+<div class='stage'>
+  <div id='bars' class='bars'></div>
+  <div id="emptyState" class="empty-state" aria-live="polite">
+  <div class="empty-box">
+    <div class="empty-illu" aria-hidden="true">
+      <div class="e-bar e1"></div>
+      <div class="e-bar e2"></div>
+      <div class="e-bar e3"></div>
+      <div class="e-q">?</div>
+    </div>
+    <div class="empty-title">알고리즘을 선택해 주세요</div>
+    <div class="empty-desc">위에서 정렬 알고리즘을 고른 뒤 GO를 누르면 시작됩니다.</div>
+  </div>
+</div>
+</div>
+
+<!-- Bar Tooltip -->
+<div id="barTooltip" class="bar-tooltip" role="status" aria-hidden="true">
+  <div class="tt__title" id="ttTitle">-</div>
+  <div class="tt__meta" id="ttMeta">-</div>
+  <div class="tt__tags" id="ttTags"></div>
+</div>
+
+<div id="helpBackdrop" class="help-backdrop" hidden></div>
+
+<div id="helpDialog" class="help-dialog" hidden role="dialog" aria-modal="true" aria-label="도움말">
+  <div class="help-dialog__head">
+    <div class="help-dialog__title">도움말</div>
+    <button id="helpClose" class="help-close" type="button">닫기</button>
+  </div>
+
+  <div class="help-dialog__body">
+    <div class="help-section">
+      <div class="help-k">기본 조작</div>
+      <ul class="help-list">
+        <li>RANDOM: 데이터 새로 생성</li>
+        <li>GO: 정렬 시작</li>
+        <li>PAUSE / RESUME / STOP: 실행 제어</li>
+        <li>DESC: 내림차순 토글</li>
+      </ul>
+    </div>
+
+    <div class="help-section">
+      <div class="help-k">단축키</div>
+      <ul class="help-list">
+        <li><b>R</b>: RANDOM</li>
+        <li><b>G</b> 또는 <b>Enter</b>: GO</li>
+        <li><b>Space</b>: PAUSE / RESUME 토글</li>
+        <li><b>S</b>: STOP</li>
+        <li><b>D</b>: DESC 토글</li>
+        <li><b>?</b>: 도움말 열기/닫기</li>
+      </ul>
+      <div class="help-note">입력/셀렉트에 포커스가 있을 땐 단축키가 동작하지 않습니다.</div>
+    </div>
+  </div>
+</div>
+
+<script src='js/core/registry.js'></script>
+<script src='js/core/animation.js'></script>
+
+<script src='js/core/stats.js'></script>
+<script src='js/core/points.js'></script>
+<script src="js/core/ui_extras.js"></script>
+<script src='js/core/bars.js'></script>
+
+
+<script src='js/algorithms/swap.js'></script>
+<script src='js/algorithms/heap.js'></script>
+<script src='js/algorithms/write.js'></script>
+<script src='js/algorithms/advanced.js'></script>
+
+<script src='js/app.js'></script>
+
+</body>
+</html>

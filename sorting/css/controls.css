@@ -1,0 +1,99 @@
+.controls{
+  margin: 16px auto 0;
+  width: min(980px, calc(100% - 24px));
+
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  padding: 14px 14px;
+  border-radius: 18px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.controls select{
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.controls label{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+
+  padding: 8px 10px;
+  border-radius: 12px;
+
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  color: #334155;
+}
+
+.controls input[type="range"]{
+  width: 160px;
+}
+
+.controls .toggle input{
+  width: 18px;
+  height: 18px;
+}
+
+/* buttons: clean solid/outline */
+.controls button{
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+
+  font-weight: 900;
+  letter-spacing: 0.2px;
+
+  cursor: pointer;
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 120ms, background 120ms;
+}
+
+/* RANDOM: outline */
+.controls #random{
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+.controls #random:hover{
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+/* GO: solid primary */
+.controls #go{
+  background: #2563eb;
+  border: 1px solid #2563eb;
+  color: #ffffff;
+  box-shadow: 0 12px 20px rgba(37, 99, 235, 0.18);
+}
+.controls #go:hover{
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* disabled */
+.controls button:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

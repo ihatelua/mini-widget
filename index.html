@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Mini Widget Collection: D-Day, Random String, Sorting Visualizer" />
+  <title>Mini Widget | Collection</title>
+
+  <link rel="icon" type="image/png" href="./favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="./favicon/favicon.svg" />
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon/favicon.ico?" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="./favicon/site.webmanifest" />
+
+  <style>
+    :root {
+      color-scheme: light dark;
+      --font-ui: "Space Grotesk", "Pretendard", "Noto Sans KR", sans-serif;
+      --bg: #0c1118;
+      --bg-soft: rgba(16, 22, 32, 0.62);
+      --text: #e9edf5;
+      --text-dim: #b5c0d2;
+      --line: rgba(197, 212, 241, 0.22);
+      --card: rgba(17, 25, 37, 0.7);
+      --card-hover: rgba(22, 31, 45, 0.86);
+      --accent: #57d0b0;
+      --accent-2: #57a0ff;
+      --shadow: 0 22px 55px rgba(0, 0, 0, 0.28);
+      --hero-grad: radial-gradient(circle at 16% 20%, rgba(87, 160, 255, 0.2), transparent 42%),
+        radial-gradient(circle at 78% 14%, rgba(87, 208, 176, 0.2), transparent 36%),
+        linear-gradient(160deg, #0a1018 0%, #0e1723 100%);
+    }
+
+    :root[data-theme="light"] {
+      --bg: #edf2f8;
+      --bg-soft: rgba(255, 255, 255, 0.64);
+      --text: #0f1621;
+      --text-dim: #4f5e73;
+      --line: rgba(17, 34, 60, 0.18);
+      --card: rgba(255, 255, 255, 0.75);
+      --card-hover: rgba(255, 255, 255, 0.94);
+      --accent: #0e8e70;
+      --accent-2: #2e6af5;
+      --shadow: 0 20px 48px rgba(35, 55, 82, 0.14);
+      --hero-grad: radial-gradient(circle at 14% 18%, rgba(73, 134, 255, 0.18), transparent 38%),
+        radial-gradient(circle at 78% 18%, rgba(16, 156, 129, 0.16), transparent 38%),
+        linear-gradient(145deg, #f9fbff 0%, #edf2f8 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: var(--font-ui);
+      /* background: var(--bg); */
+      color: var(--text);
+    }
+
+    body {
+      position: relative;
+      overflow-x: hidden;
+      background-image: var(--hero-grad);
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    #bg3d {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.28;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08) 0, transparent 25%),
+        radial-gradient(circle at 80% 60%, rgba(255, 255, 255, 0.05) 0, transparent 23%);
+      filter: contrast(106%) saturate(108%);
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: clamp(22px, 4vw, 42px);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: clamp(38px, 9vh, 88px);
+    }
+
+    .brand {
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .theme-btn {
+      border: 1px solid var(--line);
+      background: var(--bg-soft);
+      color: var(--text);
+      padding: 8px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.84rem;
+      backdrop-filter: blur(10px);
+      transition: transform 0.18s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .theme-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--line), var(--accent) 34%);
+    }
+
+    .hero {
+      display: grid;
+      gap: 14px;
+      margin-bottom: clamp(28px, 6vh, 54px);
+      max-width: 780px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 8vw, 4.35rem);
+      line-height: 0.94;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.55;
+      max-width: 58ch;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      background: var(--card);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      transform: translateY(0);
+      transition: transform 0.24s ease, background-color 0.24s ease, border-color 0.24s ease;
+      min-height: 228px;
+      display: grid;
+      align-content: space-between;
+      gap: 16px;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      background: var(--card-hover);
+      border-color: color-mix(in srgb, var(--line), var(--accent-2) 38%);
+    }
+
+    .card__meta {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--text-dim);
+    }
+
+    .card__title {
+      margin: 0;
+      font-size: 1.34rem;
+      letter-spacing: -0.01em;
+    }
+
+    .card__desc {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .card__cta {
+      font-size: 0.82rem;
+      color: var(--accent-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    footer {
+      margin-top: 10px;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .card {
+        min-height: 186px;
+      }
+      .topbar {
+        margin-bottom: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg3d" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">Mini Widget</div>
+      <button class="theme-btn" id="themeToggle" type="button" aria-label="테마 전환">Theme</button>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">2025 Minimal Web</p>
+      <h1>미니 유틸리티 위젯.</h1>
+      <p class="lead">
+        D-Day 계산, 랜덤 문자열 생성, 정렬 시각화까지.
+        필요할 때 바로 쓰는 미니 유틸리티 모음입니다.
+      </p>
+    </section>
+
+    <section class="grid" aria-label="위젯 목록">
+      <a class="card" href="./dday/?content=마무리%20잘하기&date=20241231&background=FFFFFF">
+        <div>
+          <p class="card__meta">Widget 01</p>
+          <h2 class="card__title">D-Day</h2>
+          <p class="card__desc">특정 날짜까지 남은 시간 혹은 지난 날짜를 빠르게 확인하는 디데이 위젯.</p>
+        </div>
+        <span class="card__cta">Open Widget</span>
+      </a>
+
+      <a class="card" href="./lagyStr/">
+        <div>
+          <p class="card__meta">Widget 02</p>
+          <h2 class="card__title">Random String</h2>
+          <p class="card__desc">옵션 조합으로 문자열 길이와 문자 집합을 제어해 랜덤 문자열을 생성.</p>
+        </div>
+        <span class="card__cta">Open Widget</span>
+      </a>
+
+      <a class="card" href="./sorting/">
+        <div>
+          <p class="card__meta">Widget 03</p>
+          <h2 class="card__title">Sorting Visualizer</h2>
+          <p class="card__desc">정렬 알고리즘 동작 과정을 애니메이션으로 확인하는 학습용 시각화 위젯.</p>
+        </div>
+        <span class="card__cta">Open Widget</span>
+      </a>
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const toggle = document.getElementById("themeToggle");
+      const saved = localStorage.getItem("mini-widget-theme");
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const initialTheme = saved || (systemDark ? "dark" : "light");
+
+      function setTheme(theme) {
+        root.dataset.theme = theme;
+        toggle.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+        localStorage.setItem("mini-widget-theme", theme);
+      }
+
+      setTheme(initialTheme);
+      toggle.addEventListener("click", function () {
+        setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+      });
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({
+        canvas: document.getElementById("bg3d"),
+        alpha: true,
+        antialias: true
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      camera.position.z = 8.8;
+
+      const pointsGeo = new THREE.BufferGeometry();
+      const pointCount = 420;
+      const positions = new Float32Array(pointCount * 3);
+
+      for (let i = 0; i < pointCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 16;
+        positions[i + 1] = (Math.random() - 0.5) * 11;
+        positions[i + 2] = (Math.random() - 0.5) * 13;
+      }
+      pointsGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+      const color = getComputedStyle(root).getPropertyValue("--accent-2").trim() || "#57a0ff";
+      const pointsMat = new THREE.PointsMaterial({ color, size: 0.028, transparent: true, opacity: 0.72 });
+      const points = new THREE.Points(pointsGeo, pointsMat);
+      scene.add(points);
+
+      const knot = new THREE.Mesh(
+        new THREE.TorusKnotGeometry(1.2, 0.18, 130, 12),
+        new THREE.MeshBasicMaterial({ color: 0x57d0b0, wireframe: true, transparent: true, opacity: 0.16 })
+      );
+      knot.position.set(2.7, -1.1, -2.5);
+      scene.add(knot);
+
+      function animate() {
+        points.rotation.y += 0.0008;
+        points.rotation.x += 0.00023;
+        knot.rotation.x += 0.0028;
+        knot.rotation.y -= 0.0019;
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      window.addEventListener("resize", function () {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      function updateThreeTheme() {
+        const nextColor = getComputedStyle(root).getPropertyValue("--accent-2").trim() || "#57a0ff";
+        points.material.color.set(nextColor);
+      }
+      toggle.addEventListener("click", updateThreeTheme);
+
+      gsap.from(".brand, .theme-btn", { y: -18, autoAlpha: 0, duration: 0.7, ease: "power2.out", stagger: 0.08 });
+      gsap.from(".eyebrow, h1, .lead", { y: 22, autoAlpha: 0, duration: 0.9, ease: "power3.out", stagger: 0.12, delay: 0.2 });
+      gsap.from(".card", { y: 26, autoAlpha: 0, duration: 0.72, ease: "power3.out", stagger: 0.1, delay: 0.48 });
+    })();
+  </script>
+</body>
+</html>
