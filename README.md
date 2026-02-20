@@ -1,29 +1,51 @@
-# Mini Widget
+﻿# Mini Widget
 
-순수 HTML/CSS/Vanilla JS로 만든 미니 위젯 모음 프로젝트입니다.
+순수 HTML/CSS/Vanilla JS로 만든 업무형 미니 위젯 모음 프로젝트입니다.
 
-## 구성
+## Widgets
 
 - `dday/`: 디데이 계산 위젯
-- `lagyStr/`: 문자열 무작위 생성기
-- `sorting/`: 정렬 애니메이션 시각화
-- `index.html`: 3개 위젯을 소개하는 메인 인덱스 페이지
+- `lagyStr/`: 랜덤 문자열 생성기
+- `sorting/`: 정렬 알고리즘 시각화
+- `markdown-preview/`: Markdown Previewer
+- `json-formatter/`: JSON Formatter & Validator
+- `password-strength/`: Password Strength Checker
+- `index.html`: 전체 위젯 소개 메인 페이지
 
-## 메인 인덱스 페이지 특징
+## 메인 인덱스 특징
 
-- 2025 스타일의 미니멀 랜딩 UI
-- `Three.js` 기반 배경 3D 오브젝트/파티클
-- `GSAP` 기반 진입 애니메이션
-- 라이트/다크 테마 전환 버튼
-- 테마 상태 `localStorage` 저장
-- 정적 페이지 환경에 맞춘 CDN 기반 구성 (빌드 도구/Node 불필요)
+- 2025 스타일 미니멀 랜딩 UI
+- `Three.js` 배경 3D 오브젝트/파티클
+- `GSAP` 진입 애니메이션
+- 라이트/다크 테마 전환 + `localStorage` 저장
+- 정적 페이지 환경(CDN) 기반, 빌드 도구/Node 불필요
+
+## 신규 위젯 특징
+
+### Markdown Previewer
+
+- 실시간 렌더링
+- 샘플 문서 로드
+- Markdown 복사
+- `marked + DOMPurify` 사용
+
+### JSON Formatter & Validator
+
+- JSON 포맷/압축
+- 유효성 검사
+- 에러 라인/컬럼 표시
+- 결과 복사
+
+### Password Strength Checker
+
+- 강도 점수(0~100) 및 단계 표시
+- 문자 조합 체크리스트
+- 예상 조합 수/대입공격 시간 추정
 
 ## 실행 방법
 
-아래 중 아무 방식으로 실행할 수 있습니다.
-
 1. `index.html`을 브라우저에서 직접 열기
-2. 정적 서버로 실행하기 (권장)
+2. 정적 서버 실행(권장)
    - 예: VS Code Live Server
 
 ## 폴더 구조
@@ -35,10 +57,13 @@ mini-widget/
 ├─ favicon/
 ├─ dday/
 ├─ lagyStr/
-└─ sorting/
+├─ sorting/
+├─ markdown-preview/
+├─ json-formatter/
+└─ password-strength/
 ```
 
-## 비고
+## 참고
 
-- 메인 페이지는 외부 CDN에서 `three.js`와 `gsap`을 로드합니다.
-- 네트워크가 차단된 환경에서는 해당 라이브러리 로딩이 실패할 수 있습니다.
+- 각 위젯은 모두 정적 HTML 기반입니다.
+- 일부 위젯은 외부 CDN(예: `three.js`, `gsap`, `marked`, `dompurify`)을 사용합니다.

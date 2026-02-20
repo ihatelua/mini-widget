@@ -1,0 +1,284 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Markdown Previewer | Mini Widget</title>
+  <meta name="description" content="실무용 마크다운 프리뷰어. 입력 즉시 렌더링하고 복사할 수 있습니다." />
+
+  <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg" />
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon/favicon.ico?" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="../favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #f4f8ff;
+      --bg-2: #ecf1fb;
+      --ink: #0f172a;
+      --ink-dim: #4e5d76;
+      --line: rgba(20, 40, 72, 0.14);
+      --card: rgba(255, 255, 255, 0.76);
+      --shadow: 0 24px 54px rgba(28, 48, 82, 0.14);
+      --accent: #2d6dff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "Space Grotesk", "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(45, 109, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(20, 184, 166, 0.13), transparent 28%),
+        linear-gradient(160deg, var(--bg), var(--bg-2));
+    }
+
+    .shell {
+      width: min(1280px, calc(100% - 2rem));
+      margin: clamp(18px, 4vw, 48px) auto;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-dim);
+      font-weight: 700;
+    }
+
+    .back-link {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.85rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 999px;
+      padding: 8px 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: clamp(14px, 2.5vw, 28px);
+    }
+
+    h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+    .desc { margin: 8px 0 16px; color: var(--ink-dim); }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #5c87ff);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.8);
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel__head {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      border: 0;
+      resize: none;
+      outline: none;
+      padding: 14px;
+      min-height: 56vh;
+      font: 500 0.98rem/1.6 "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background: transparent;
+    }
+
+    .preview {
+      padding: 16px;
+      overflow: auto;
+      min-height: 56vh;
+      font: 500 0.98rem/1.65 "Noto Sans KR", sans-serif;
+      color: #111827;
+    }
+
+    .preview h1, .preview h2, .preview h3 { margin: 1.1em 0 0.5em; }
+    .preview h1:first-child, .preview h2:first-child { margin-top: 0; }
+    .preview code {
+      background: #eef2ff;
+      border: 1px solid #dbe2ff;
+      border-radius: 8px;
+      padding: 2px 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .preview pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow: auto;
+    }
+    .preview pre code { background: transparent; border: 0; padding: 0; color: inherit; }
+    .preview blockquote {
+      margin: 1em 0;
+      padding: 0.2em 0.8em;
+      border-left: 4px solid #8ea8ff;
+      background: #f5f8ff;
+      color: #334155;
+    }
+
+    .status {
+      margin-top: 10px;
+      color: var(--ink-dim);
+      font-size: 0.84rem;
+      min-height: 1.2em;
+    }
+
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+      .panel { min-height: 42vh; }
+      textarea, .preview { min-height: 40vh; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="top">
+      <p class="brand">Mini Widget / Markdown Previewer</p>
+      <a class="back-link" href="../index.html">Back to Home</a>
+    </div>
+
+    <section class="card">
+      <h1>Markdown Previewer</h1>
+      <p class="desc">마크다운 문서를 실시간으로 렌더링하고 결과를 복사할 수 있는 업무형 프리뷰어.</p>
+
+      <div class="toolbar">
+        <button class="btn-primary" id="btnRender" type="button">Render</button>
+        <button id="btnSample" type="button">Load Sample</button>
+        <button id="btnCopyMd" type="button">Copy Markdown</button>
+        <button id="btnClear" type="button">Clear</button>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <div class="panel__head">Markdown Input</div>
+          <textarea id="markdownInput" placeholder="# 회의록\n- TODO\n- 결정사항"></textarea>
+        </div>
+        <div class="panel">
+          <div class="panel__head">Preview</div>
+          <div class="preview" id="preview" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <p class="status" id="statusText" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <script>
+    (function () {
+      const input = document.getElementById("markdownInput");
+      const preview = document.getElementById("preview");
+      const statusText = document.getElementById("statusText");
+
+      marked.setOptions({ gfm: true, breaks: true });
+
+      function render() {
+        const md = input.value || "";
+        const html = marked.parse(md);
+        preview.innerHTML = DOMPurify.sanitize(html);
+        statusText.textContent = "렌더링 완료";
+      }
+
+      function loadSample() {
+        input.value = "# Sprint Notes\n\n## Goals\n- API 안정화\n- 배포 자동화\n\n## Checklist\n- [x] QA 완료\n- [ ] 회고 정리\n\n```js\nconst status = 'ready';\n```\n\n> 공유 전 문서 검수 필요";
+        render();
+      }
+
+      async function copyMarkdown() {
+        const text = input.value;
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const tmp = document.createElement("textarea");
+            tmp.value = text;
+            document.body.appendChild(tmp);
+            tmp.select();
+            document.execCommand("copy");
+            document.body.removeChild(tmp);
+          }
+          statusText.textContent = "Markdown 복사 완료";
+        } catch (e) {
+          statusText.textContent = "복사 실패";
+        }
+      }
+
+      document.getElementById("btnRender").addEventListener("click", render);
+      document.getElementById("btnSample").addEventListener("click", loadSample);
+      document.getElementById("btnCopyMd").addEventListener("click", copyMarkdown);
+      document.getElementById("btnClear").addEventListener("click", function () {
+        input.value = "";
+        preview.innerHTML = "";
+        statusText.textContent = "초기화 완료";
+      });
+
+      input.addEventListener("input", render);
+      loadSample();
+    })();
+  </script>
+</body>
+</html>

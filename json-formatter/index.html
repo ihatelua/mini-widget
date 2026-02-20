@@ -1,0 +1,327 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JSON Formatter & Validator | Mini Widget</title>
+  <meta name="description" content="JSON 포맷팅, 검증, 복사를 빠르게 처리하는 업무용 위젯" />
+
+  <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg" />
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon/favicon.ico?" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="../favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #f5f9ff;
+      --bg-2: #edf3ff;
+      --ink: #0f172a;
+      --ink-dim: #4d5b76;
+      --line: rgba(18, 38, 72, 0.16);
+      --card: rgba(255, 255, 255, 0.78);
+      --shadow: 0 24px 56px rgba(24, 48, 91, 0.15);
+      --accent: #255ef2;
+      --ok: #0f9f6d;
+      --bad: #cc2f4a;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "Space Grotesk", "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 14%, rgba(37, 94, 242, 0.15), transparent 34%),
+        radial-gradient(circle at 90% 12%, rgba(20, 184, 166, 0.12), transparent 26%),
+        linear-gradient(155deg, var(--bg), var(--bg-2));
+    }
+
+    .shell {
+      width: min(1220px, calc(100% - 2rem));
+      margin: clamp(18px, 4vw, 48px) auto;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-dim);
+      font-weight: 700;
+    }
+
+    .back-link {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.85rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.64);
+      border-radius: 999px;
+      padding: 8px 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: clamp(14px, 2.5vw, 28px);
+    }
+
+    h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+    .desc { margin: 8px 0 16px; color: var(--ink-dim); }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #5f89ff);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.82);
+      min-height: 62vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel__head {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-dim);
+      font-weight: 700;
+    }
+
+    textarea, pre {
+      margin: 0;
+      border: 0;
+      outline: none;
+      min-height: 58vh;
+      padding: 14px;
+      font: 500 0.92rem/1.6 "JetBrains Mono", Consolas, monospace;
+      background: transparent;
+      color: #0f172a;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    textarea { resize: none; }
+    pre { background: #0b1120; color: #e5ebf7; }
+
+    .status {
+      margin-top: 10px;
+      font-size: 0.86rem;
+      min-height: 1.2em;
+      color: var(--ink-dim);
+    }
+
+    .ok { color: var(--ok); }
+    .bad { color: var(--bad); }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .panel { min-height: 42vh; }
+      textarea, pre { min-height: 40vh; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="top">
+      <p class="brand">Mini Widget / JSON Formatter & Validator</p>
+      <a class="back-link" href="../index.html">Back to Home</a>
+    </div>
+
+    <section class="card">
+      <h1>JSON Formatter & Validator</h1>
+      <p class="desc">API 응답/설정 JSON을 빠르게 검사하고 보기 좋게 정렬합니다.</p>
+
+      <div class="toolbar">
+        <button class="btn-primary" id="btnFormat" type="button">Format</button>
+        <button id="btnValidate" type="button">Validate</button>
+        <button id="btnMinify" type="button">Minify</button>
+        <button id="btnCopy" type="button">Copy Output</button>
+        <button id="btnSample" type="button">Load Sample</button>
+        <button id="btnClear" type="button">Clear</button>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <div class="panel__head">Input JSON</div>
+          <textarea id="inputJson" spellcheck="false" placeholder='{"project":"mini-widget"}'></textarea>
+        </div>
+        <div class="panel">
+          <div class="panel__head">Output</div>
+          <pre id="outputJson"></pre>
+        </div>
+      </div>
+
+      <p id="statusText" class="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const input = document.getElementById("inputJson");
+      const output = document.getElementById("outputJson");
+      const statusText = document.getElementById("statusText");
+
+      function parseInput() {
+        return JSON.parse(input.value);
+      }
+
+      function getLineColumn(raw, pos) {
+        const upto = raw.slice(0, pos);
+        const lines = upto.split("\n");
+        return { line: lines.length, column: lines[lines.length - 1].length + 1 };
+      }
+
+      function showError(err) {
+        const match = /position\s(\d+)/i.exec(err.message || "");
+        if (match) {
+          const pos = Number(match[1]);
+          const lc = getLineColumn(input.value, pos);
+          statusText.textContent = `유효하지 않은 JSON: line ${lc.line}, column ${lc.column}`;
+        } else {
+          statusText.textContent = "유효하지 않은 JSON";
+        }
+        statusText.className = "status bad";
+      }
+
+      function setOutput(value) {
+        output.textContent = value;
+      }
+
+      function formatJson() {
+        try {
+          const parsed = parseInput();
+          const pretty = JSON.stringify(parsed, null, 2);
+          setOutput(pretty);
+          statusText.textContent = "Format 완료";
+          statusText.className = "status ok";
+        } catch (err) {
+          setOutput("");
+          showError(err);
+        }
+      }
+
+      function validateJson() {
+        try {
+          parseInput();
+          statusText.textContent = "유효한 JSON입니다.";
+          statusText.className = "status ok";
+        } catch (err) {
+          showError(err);
+        }
+      }
+
+      function minifyJson() {
+        try {
+          const parsed = parseInput();
+          const minified = JSON.stringify(parsed);
+          setOutput(minified);
+          statusText.textContent = "Minify 완료";
+          statusText.className = "status ok";
+        } catch (err) {
+          setOutput("");
+          showError(err);
+        }
+      }
+
+      async function copyOutput() {
+        const text = output.textContent;
+        if (!text) {
+          statusText.textContent = "복사할 출력이 없습니다.";
+          statusText.className = "status bad";
+          return;
+        }
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const tmp = document.createElement("textarea");
+            tmp.value = text;
+            document.body.appendChild(tmp);
+            tmp.select();
+            document.execCommand("copy");
+            document.body.removeChild(tmp);
+          }
+          statusText.textContent = "출력 복사 완료";
+          statusText.className = "status ok";
+        } catch (e) {
+          statusText.textContent = "복사 실패";
+          statusText.className = "status bad";
+        }
+      }
+
+      function loadSample() {
+        input.value = '{\n  "name": "mini-widget",\n  "widgets": ["dday", "lagyStr", "sorting"],\n  "enabled": true,\n  "version": 1\n}';
+        formatJson();
+      }
+
+      document.getElementById("btnFormat").addEventListener("click", formatJson);
+      document.getElementById("btnValidate").addEventListener("click", validateJson);
+      document.getElementById("btnMinify").addEventListener("click", minifyJson);
+      document.getElementById("btnCopy").addEventListener("click", copyOutput);
+      document.getElementById("btnSample").addEventListener("click", loadSample);
+      document.getElementById("btnClear").addEventListener("click", function () {
+        input.value = "";
+        setOutput("");
+        statusText.textContent = "초기화 완료";
+        statusText.className = "status";
+      });
+
+      input.addEventListener("input", function () {
+        statusText.textContent = "";
+        statusText.className = "status";
+      });
+
+      loadSample();
+    })();
+  </script>
+</body>
+</html>
