@@ -387,10 +387,11 @@
       scene.add(points);
 
       const knot = new THREE.Mesh(
-        new THREE.TorusKnotGeometry(1.2, 0.18, 130, 12),
+        new THREE.TorusKnotGeometry(2.2, 0.38, 130, 15),
         new THREE.MeshBasicMaterial({ color: 0x57d0b0, wireframe: true, transparent: true, opacity: 0.16 })
       );
       knot.position.set(2.7, -1.1, -2.5);
+      knot.position.x += 4;
       scene.add(knot);
 
       function animate() {
