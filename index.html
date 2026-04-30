@@ -75,6 +75,20 @@
       pointer-events: none;
     }
 
+    #fluidCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    :root[data-theme="light"] #fluidCanvas {
+      mix-blend-mode: overlay;
+    }
+
     .grain {
       position: fixed;
       inset: 0;
@@ -236,6 +250,7 @@
 </head>
 <body>
   <canvas id="bg3d" aria-hidden="true"></canvas>
+  <canvas id="fluidCanvas" aria-hidden="true"></canvas>
   <div class="grain" aria-hidden="true"></div>
 
   <main class="shell">
@@ -370,229 +385,46 @@
       });
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 1000);
       const renderer = new THREE.WebGLRenderer({
         canvas: document.getElementById("bg3d"),
         alpha: true,
         antialias: true
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
       renderer.setSize(window.innerWidth, window.innerHeight);
-      camera.position.set(0, 0, 8.4);
 
-      function readThemeColors() {
-        const cs = getComputedStyle(root);
-        return {
-          a: new THREE.Color(cs.getPropertyValue("--accent").trim() || "#57d0b0"),
-          b: new THREE.Color(cs.getPropertyValue("--accent-2").trim() || "#57a0ff")
-        };
+      camera.position.z = 8.8;
+
+      const pointsGeo = new THREE.BufferGeometry();
+      const pointCount = 420;
+      const positions = new Float32Array(pointCount * 3);
+
+      for (let i = 0; i < pointCount * 3; i += 3) {
+        positions[i]     = (Math.random() - 0.5) * 16;
+        positions[i + 1] = (Math.random() - 0.5) * 11;
+        positions[i + 2] = (Math.random() - 0.5) * 13;
       }
-      let theme = readThemeColors();
+      pointsGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
-      const blobMat = new THREE.ShaderMaterial({
-        uniforms: {
-          uTime: { value: 0 },
-          uColorA: { value: theme.a.clone() },
-          uColorB: { value: theme.b.clone() }
-        },
-        vertexShader: [
-          "uniform float uTime;",
-          "varying vec3 vNormal;",
-          "varying float vPulse;",
-          "void main() {",
-          "  vec3 p = position;",
-          "  float t = uTime;",
-          "  float wave = sin(p.x * 2.4 + t * 1.30)",
-          "             + sin(p.y * 2.7 + t * 1.05)",
-          "             + sin(p.z * 2.5 + t * 1.55);",
-          "  wave *= 0.075;",
-          "  p += normal * wave;",
-          "  vNormal = normalize(normalMatrix * normal);",
-          "  vPulse = wave;",
-          "  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);",
-          "}"
-        ].join("\n"),
-        fragmentShader: [
-          "uniform vec3 uColorA;",
-          "uniform vec3 uColorB;",
-          "varying vec3 vNormal;",
-          "varying float vPulse;",
-          "void main() {",
-          "  float rim = pow(1.0 - abs(vNormal.z), 2.2);",
-          "  vec3 col = mix(uColorA, uColorB, clamp(rim + vPulse * 1.7, 0.0, 1.0));",
-          "  float alpha = rim * 0.78 + 0.05;",
-          "  gl_FragColor = vec4(col * (0.55 + rim * 0.95), alpha);",
-          "}"
-        ].join("\n"),
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      });
-      const blob = new THREE.Mesh(new THREE.IcosahedronGeometry(1.55, 4), blobMat);
-
-      const wireMat = new THREE.MeshBasicMaterial({
-        color: theme.b.clone(),
-        wireframe: true,
-        transparent: true,
-        opacity: 0.42,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      });
-      const wire = new THREE.Mesh(new THREE.IcosahedronGeometry(1.92, 1), wireMat);
-
-      const rings = new THREE.Group();
-      const ringDefs = [
-        { r: 2.55, ax: 1.10, ay: 0.40, sp:  0.0036, accentA: true },
-        { r: 2.95, ax: 0.50, ay: 1.20, sp: -0.0028, accentA: false },
-        { r: 3.35, ax: 1.50, ay: 0.90, sp:  0.0021, accentA: true }
-      ];
-      const ringMeshes = ringDefs.map(function (def) {
-        const m = new THREE.Mesh(
-          new THREE.TorusGeometry(def.r, 0.006, 8, 220),
-          new THREE.MeshBasicMaterial({
-            color: (def.accentA ? theme.a : theme.b).clone(),
-            transparent: true,
-            opacity: 0.55,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
-          })
-        );
-        m.rotation.x = def.ax;
-        m.rotation.y = def.ay;
-        m.userData = { speed: def.sp, accentA: def.accentA };
-        rings.add(m);
-        return m;
-      });
-
-      const cluster = new THREE.Group();
-      cluster.add(blob);
-      cluster.add(wire);
-      cluster.add(rings);
-
-      const chipMeshes = [];
-      for (let i = 0; i < 8; i++) {
-        const useA = i % 2 === 0;
-        const orbit = new THREE.Group();
-        orbit.rotation.x = Math.random() * Math.PI;
-        orbit.rotation.z = Math.random() * Math.PI;
-
-        const chip = new THREE.Mesh(
-          new THREE.OctahedronGeometry(0.16, 0),
-          new THREE.MeshBasicMaterial({
-            color: (useA ? theme.a : theme.b).clone(),
-            wireframe: true,
-            transparent: true,
-            opacity: 0.9,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
-          })
-        );
-        chip.userData = {
-          radius: 2.5 + Math.random() * 1.6,
-          speed: 0.0009 + Math.random() * 0.0017,
-          phase: Math.random() * Math.PI * 2,
-          accentA: useA
-        };
-        orbit.add(chip);
-        cluster.add(orbit);
-        chipMeshes.push(chip);
-      }
-
-      cluster.position.set(3.3, -0.5, -1.2);
-      scene.add(cluster);
-
-      const pCount = 240;
-      const pPositions = new Float32Array(pCount * 3);
-      for (let i = 0; i < pCount; i++) {
-        const phi = Math.acos(2 * Math.random() - 1);
-        const th = Math.random() * Math.PI * 2;
-        const r = 4.4 + Math.random() * 2.6;
-        pPositions[i * 3]     = r * Math.sin(phi) * Math.cos(th);
-        pPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(th) * 0.72;
-        pPositions[i * 3 + 2] = r * Math.cos(phi);
-      }
-      const pGeo = new THREE.BufferGeometry();
-      pGeo.setAttribute("position", new THREE.BufferAttribute(pPositions, 3));
-      const pMat = new THREE.PointsMaterial({
-        color: theme.b.clone(),
-        size: 0.045,
-        transparent: true,
-        opacity: 0.85,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      });
-      const points = new THREE.Points(pGeo, pMat);
+      const color = getComputedStyle(root).getPropertyValue("--accent-2").trim() || "#57a0ff";
+      const pointsMat = new THREE.PointsMaterial({ color, size: 0.028, transparent: true, opacity: 0.72 });
+      const points = new THREE.Points(pointsGeo, pointsMat);
       scene.add(points);
 
-      const linePoints = [];
-      const maxLineDistSq = 1.55 * 1.55;
-      for (let i = 0; i < pCount; i++) {
-        for (let j = i + 1; j < pCount; j++) {
-          const dx = pPositions[i * 3]     - pPositions[j * 3];
-          const dy = pPositions[i * 3 + 1] - pPositions[j * 3 + 1];
-          const dz = pPositions[i * 3 + 2] - pPositions[j * 3 + 2];
-          if (dx * dx + dy * dy + dz * dz < maxLineDistSq) {
-            linePoints.push(
-              pPositions[i * 3], pPositions[i * 3 + 1], pPositions[i * 3 + 2],
-              pPositions[j * 3], pPositions[j * 3 + 1], pPositions[j * 3 + 2]
-            );
-          }
-        }
-      }
-      const lineGeo = new THREE.BufferGeometry();
-      lineGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(linePoints), 3));
-      const lineMat = new THREE.LineBasicMaterial({
-        color: theme.a.clone(),
-        transparent: true,
-        opacity: 0.18,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      });
-      const lines = new THREE.LineSegments(lineGeo, lineMat);
-      scene.add(lines);
+      const knot = new THREE.Mesh(
+        new THREE.TorusKnotGeometry(2.2, 0.38, 130, 15),
+        new THREE.MeshBasicMaterial({ color: 0x57d0b0, wireframe: true, transparent: true, opacity: 0.16 })
+      );
+      knot.position.set(2.7, -1.1, -2.5);
+      knot.position.x += 4;
+      scene.add(knot);
 
-      const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
-      window.addEventListener("mousemove", function (e) {
-        mouse.tx = (e.clientX / window.innerWidth - 0.5) * 1.2;
-        mouse.ty = (e.clientY / window.innerHeight - 0.5) * 1.2;
-      });
-
-      const clock = new THREE.Clock();
       function animate() {
-        const t = clock.getElapsedTime();
-        blobMat.uniforms.uTime.value = t;
-
-        blob.rotation.y = t * 0.18;
-        blob.rotation.x = t * 0.12;
-        wire.rotation.y = -t * 0.15;
-        wire.rotation.x = t * 0.08;
-
-        for (let i = 0; i < ringMeshes.length; i++) {
-          const ring = ringMeshes[i];
-          ring.rotation.x += ring.userData.speed;
-          ring.rotation.y += ring.userData.speed * 0.65;
-        }
-
-        for (let i = 0; i < chipMeshes.length; i++) {
-          const c = chipMeshes[i];
-          const u = c.userData;
-          u.phase += u.speed;
-          c.position.x = Math.cos(u.phase) * u.radius;
-          c.position.z = Math.sin(u.phase) * u.radius;
-          c.rotation.x += 0.012;
-          c.rotation.y += 0.018;
-        }
-
         points.rotation.y += 0.0008;
-        points.rotation.x = points.rotation.y * 0.4;
-        lines.rotation.copy(points.rotation);
-
-        mouse.x += (mouse.tx - mouse.x) * 0.045;
-        mouse.y += (mouse.ty - mouse.y) * 0.045;
-        camera.position.x = mouse.x * 0.7;
-        camera.position.y = -mouse.y * 0.7;
-        camera.lookAt(0, 0, 0);
-
+        points.rotation.x += 0.00023;
+        knot.rotation.x += 0.0028;
+        knot.rotation.y -= 0.0019;
         renderer.render(scene, camera);
         requestAnimationFrame(animate);
       }
@@ -605,18 +437,8 @@
       });
 
       function updateThreeTheme() {
-        const next = readThemeColors();
-        blobMat.uniforms.uColorA.value.copy(next.a);
-        blobMat.uniforms.uColorB.value.copy(next.b);
-        wireMat.color.copy(next.b);
-        pMat.color.copy(next.b);
-        lineMat.color.copy(next.a);
-        ringMeshes.forEach(function (r) {
-          r.material.color.copy(r.userData.accentA ? next.a : next.b);
-        });
-        chipMeshes.forEach(function (c) {
-          c.material.color.copy(c.userData.accentA ? next.a : next.b);
-        });
+        const nextColor = getComputedStyle(root).getPropertyValue("--accent-2").trim() || "#57a0ff";
+        points.material.color.set(nextColor);
       }
       toggle.addEventListener("click", updateThreeTheme);
 
@@ -624,6 +446,265 @@
       gsap.from(".eyebrow, h1, .lead", { y: 22, autoAlpha: 0, duration: 0.9, ease: "power3.out", stagger: 0.12, delay: 0.2 });
       gsap.from(".card", { y: 26, autoAlpha: 0, duration: 0.72, ease: "power3.out", stagger: 0.1, delay: 0.48 });
     })();
+  </script>
+
+  <script>
+  /* ── Fluid / Smoke Trail (Lusion-style FBO ping-pong) ── */
+  (function () {
+    if (!window.matchMedia("(hover: hover)").matches) return;
+    if (!window.THREE) return;
+
+    const canvas = document.getElementById("fluidCanvas");
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, precision: "mediump" });
+    renderer.setPixelRatio(1);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+
+    const orthoCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const quadGeo = new THREE.PlaneGeometry(2, 2);
+
+    let simW = window.innerWidth >> 2;
+    let simH = window.innerHeight >> 2;
+
+    const rtOpts = {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.HalfFloatType,
+      depthBuffer: false,
+      stencilBuffer: false
+    };
+    let rtA = new THREE.WebGLRenderTarget(simW, simH, rtOpts);
+    let rtB = new THREE.WebGLRenderTarget(simW, simH, rtOpts);
+
+    const quadVert = [
+      "varying vec2 vUv;",
+      "void main() { vUv = uv; gl_Position = vec4(position, 1.0); }"
+    ].join("\n");
+
+    /* ── Simulation shader ──────────────────────────────────── */
+    const simFrag = [
+      "precision highp float;",
+      "uniform sampler2D uPrev;",
+      "uniform vec2 uMouseFrom;",  // 이전 프레임 마우스 위치
+      "uniform vec2 uMouseTo;",    // 현재 프레임 마우스 위치
+      "uniform vec2 uVelocity;",
+      "uniform float uDissipation;",
+      "uniform float uSmokeDiss;",
+      "uniform float uRadius;",
+      "uniform float uAspect;",
+      "uniform float uTime;",
+      "varying vec2 vUv;",
+
+      // 품질 좋은 hash (그리드 아티팩트 최소화)
+      "float hash21(vec2 p) {",
+      "  vec3 p3 = fract(vec3(p.xyx) * 0.1031);",
+      "  p3 += dot(p3, p3.yzx + 33.33);",
+      "  return fract((p3.x + p3.y) * p3.z);",
+      "}",
+      "float vnoise(vec2 p) {",
+      "  vec2 i = floor(p); vec2 f = fract(p);",
+      // 5차 보간 (Hermite 대비 더 부드러운 경계)
+      "  f = f*f*f*(f*(f*6.0-15.0)+10.0);",
+      "  return mix(",
+      "    mix(hash21(i), hash21(i+vec2(1,0)), f.x),",
+      "    mix(hash21(i+vec2(0,1)), hash21(i+vec2(1,1)), f.x), f.y);",
+      "}",
+      "vec2 curl(vec2 p) {",
+      "  float e = 0.014;",
+      "  float nx = vnoise(p+vec2(0,e)) - vnoise(p-vec2(0,e));",
+      "  float ny = vnoise(p+vec2(e,0)) - vnoise(p-vec2(e,0));",
+      "  return vec2(nx, -ny) / (2.0*e);",
+      "}",
+
+      // 점→선분 최소거리 (계단현상 핵심 수정)
+      "float segDist(vec2 uv, vec2 a, vec2 b, float aspect) {",
+      "  vec2 ab = b - a;",
+      "  float len2 = dot(ab, ab);",
+      "  float t = len2 < 0.00001 ? 0.0 : clamp(dot(uv - a, ab) / len2, 0.0, 1.0);",
+      "  vec2 closest = a + ab * t;",
+      "  vec2 d = uv - closest;",
+      "  d.x *= aspect;",
+      "  return length(d);",
+      "}",
+
+      "void main() {",
+      "  vec4 prev = texture2D(uPrev, vUv);",
+
+      "  vec2 swirl = curl(vUv * 5.0 + uTime * 0.055) * 0.0028;",
+      "  vec2 advUv = vUv - prev.xy * 0.017 + swirl;",
+      "  vec4 adv = texture2D(uPrev, advUv);",
+
+      "  adv.xy *= uDissipation;",
+      "  adv.z  *= uSmokeDiss;",
+      "  adv.w  *= uSmokeDiss * 0.94;",
+
+      // 선분 기반 splat — 끊김 없음
+      "  float dist = segDist(vUv, uMouseFrom, uMouseTo, uAspect);",
+      "  float splat = exp(-dist * dist / (uRadius * uRadius));",
+      "  float velMag = length(uVelocity);",
+      "  adv.xy += uVelocity * splat * 18.0;",
+      "  adv.z  += splat * clamp(velMag * 9.0, 0.10, 0.52);",
+      "  adv.w  += splat * clamp(velMag * 5.5, 0.05, 0.30);",
+
+      "  gl_FragColor = adv;",
+      "}"
+    ].join("\n");
+
+    const simMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uPrev:        { value: null },
+        uMouseFrom:   { value: new THREE.Vector2(-2, -2) },
+        uMouseTo:     { value: new THREE.Vector2(-2, -2) },
+        uVelocity:    { value: new THREE.Vector2(0, 0) },
+        uDissipation: { value: 0.887 },
+        uSmokeDiss:   { value: 0.975 },
+        uRadius:      { value: 0.05 },
+        uAspect:      { value: simW / simH },
+        uTime:        { value: 0 }
+      },
+      vertexShader: quadVert,
+      fragmentShader: simFrag,
+      depthTest: false,
+      depthWrite: false
+    });
+    const simScene = new THREE.Scene();
+    simScene.add(new THREE.Mesh(quadGeo, simMat));
+
+    /* ── Display shader ─────────────────────────────────────── */
+    const dispFrag = [
+      "precision highp float;",
+      "uniform sampler2D uFluid;",
+      "uniform vec3 uColorA;",
+      "uniform vec3 uColorB;",
+      "uniform vec2 uSimTexel;",  // sim 텍스처 1픽셀 크기
+      "varying vec2 vUv;",
+
+      "void main() {",
+      // 5-tap 가우시안 블러 — 저해상도 sim 텍스처 계단 완화
+      "  vec4 f  = texture2D(uFluid, vUv)                        * 0.500;",
+      "  f += texture2D(uFluid, vUv + vec2( uSimTexel.x, 0.0))  * 0.125;",
+      "  f += texture2D(uFluid, vUv + vec2(-uSimTexel.x, 0.0))  * 0.125;",
+      "  f += texture2D(uFluid, vUv + vec2(0.0,  uSimTexel.y))  * 0.125;",
+      "  f += texture2D(uFluid, vUv + vec2(0.0, -uSimTexel.y))  * 0.125;",
+
+      "  float smoke  = clamp(f.z, 0.0, 1.0);",
+      "  float smoke2 = clamp(f.w, 0.0, 1.0);",
+      "  float speed  = length(f.xy);",
+
+      "  float t = clamp(speed * 4.5 + smoke2 * 1.4, 0.0, 1.0);",
+      "  vec3 col = mix(uColorA, uColorB, t);",
+      "  col += uColorA * smoke2 * 0.35;",
+
+      "  float alpha = smoothstep(0.0, 0.22, smoke) * smoke * 0.90;",
+      "  gl_FragColor = vec4(col * alpha, alpha);",
+      "}"
+    ].join("\n");
+
+    function readAccentColors() {
+      const cs = getComputedStyle(document.documentElement);
+      return {
+        a: new THREE.Color(cs.getPropertyValue("--accent").trim()   || "#57d0b0"),
+        b: new THREE.Color(cs.getPropertyValue("--accent-2").trim() || "#57a0ff")
+      };
+    }
+    const tc = readAccentColors();
+
+    const dispMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uFluid:    { value: null },
+        uColorA:   { value: tc.a },
+        uColorB:   { value: tc.b },
+        uSimTexel: { value: new THREE.Vector2(1 / simW, 1 / simH) }
+      },
+      vertexShader: quadVert,
+      fragmentShader: dispFrag,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false
+    });
+    const dispScene = new THREE.Scene();
+    dispScene.add(new THREE.Mesh(quadGeo, dispMat));
+
+    /* ── Mouse tracking ─────────────────────────────────────── */
+    const mouse = {
+      curr:   new THREE.Vector2(-2, -2),
+      prev:   new THREE.Vector2(-2, -2),
+      vel:    new THREE.Vector2(0, 0),
+      inside: false
+    };
+
+    window.addEventListener("mousemove", function (e) {
+      mouse.curr.set(
+        e.clientX / window.innerWidth,
+        1.0 - e.clientY / window.innerHeight
+      );
+      mouse.inside = true;
+    });
+    window.addEventListener("mouseleave", function () {
+      mouse.inside = false;
+      mouse.curr.set(-2, -2);
+    });
+
+    /* ── Render loop ────────────────────────────────────────── */
+    const clock = new THREE.Clock();
+
+    function loop() {
+      requestAnimationFrame(loop);
+      const t = clock.getElapsedTime();
+
+      // Velocity: per-frame delta, clamped to avoid instability
+      if (mouse.inside && mouse.prev.x > -1) {
+        const dx = mouse.curr.x - mouse.prev.x;
+        const dy = mouse.curr.y - mouse.prev.y;
+        const spd = Math.sqrt(dx * dx + dy * dy);
+        const max = 0.04;
+        const s = spd > 0 ? Math.min(spd, max) / spd : 0;
+        mouse.vel.set(dx * s, dy * s);
+      }
+      mouse.vel.multiplyScalar(0.88);
+
+      // Simulation step
+      simMat.uniforms.uPrev.value = rtA.texture;
+      simMat.uniforms.uMouseFrom.value.copy(mouse.prev);  // 선분 시작점
+      simMat.uniforms.uMouseTo.value.copy(mouse.curr);    // 선분 끝점
+      simMat.uniforms.uVelocity.value.copy(mouse.vel);
+      simMat.uniforms.uTime.value = t;
+
+      renderer.setRenderTarget(rtB);
+      renderer.render(simScene, orthoCamera);
+
+      // Ping-pong swap
+      var tmp = rtA; rtA = rtB; rtB = tmp;
+
+      // Display on screen
+      dispMat.uniforms.uFluid.value = rtA.texture;
+      renderer.setRenderTarget(null);
+      renderer.clear();
+      renderer.render(dispScene, orthoCamera);
+
+      mouse.prev.copy(mouse.curr);
+    }
+    loop();
+
+    /* ── Resize ─────────────────────────────────────────────── */
+    window.addEventListener("resize", function () {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      simW = window.innerWidth  >> 2;
+      simH = window.innerHeight >> 2;
+      rtA.setSize(simW, simH);
+      rtB.setSize(simW, simH);
+      simMat.uniforms.uAspect.value = simW / simH;
+      dispMat.uniforms.uSimTexel.value.set(1 / simW, 1 / simH);
+    });
+
+    /* ── Theme sync ─────────────────────────────────────────── */
+    document.getElementById("themeToggle").addEventListener("click", function () {
+      const next = readAccentColors();
+      dispMat.uniforms.uColorA.value.copy(next.a);
+      dispMat.uniforms.uColorB.value.copy(next.b);
+    });
+  })();
   </script>
 </body>
 </html>
