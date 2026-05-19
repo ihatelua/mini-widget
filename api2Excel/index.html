@@ -381,11 +381,12 @@
     <section class="card">
       <div class="hero">
         <div>
-          <h1>OpenAPI → Excel 생성</h1>
+          <h1>OpenAPI → Excel 생성 <span style="font-size:0.5em; vertical-align:middle; padding:4px 10px; background:linear-gradient(135deg,#16a34a,#2563eb); color:#fff; border-radius:999px; letter-spacing:0.05em; font-weight:600; margin-left:8px;">MODERN</span></h1>
           <p class="desc">
             <strong>openapi.json</strong> 파일을 드래그 앤 드롭하면,
-            엔드포인트 구조를 미리보고 <strong>Body / Query / Headers / Response</strong> 기준의
-            엑셀 API 명세서를 바로 다운로드할 수 있습니다.
+            엔드포인트 구조를 미리보고
+            <strong>메서드 컬러 뱃지 · Quick Reference · HEADERS / QUERY / BODY / RESPONSE 섹션</strong>의
+            모던 스타일 엑셀 API 명세서를 바로 다운로드할 수 있습니다.
           </p>
 
           <div class="toolbar">
@@ -707,154 +708,499 @@
           .replaceAll("'", "&#039;");
       }
 
-      function setHeaderStyle(row, colCount) {
-        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-          if (colNumber > colCount) return;
-          cell.font = { ...baseFont, bold: true, color: { argb: "FFFFFFFF" } };
-          cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
-          cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: accent.header } };
-        });
+      // ============================================================
+      // 모던 스타일 엑셀 생성기
+      // ============================================================
+
+      // 디자인 토큰 (ARGB: FF + RRGGBB)
+      const MODERN = {
+        font: {
+          sans: "맑은 고딕",
+          mono: "Consolas"
+        },
+        color: {
+          textHeading:  "FF111827",
+          textBody:     "FF374151",
+          textMuted:    "FF6B7280",
+          textSubtle:   "FF9CA3AF",
+          textRequired: "FFDC2626",
+          bgWhite:      "FFFFFFFF",
+          bgSection:    "FFF9FAFB",
+          bgTableHead:  "FFF3F4F6",
+          bgAltRow:     "FFFAFAFA",
+          bgDivider:    "FFE5E7EB",
+          borderSubtle: "FFE5E7EB",
+          borderLight:  "FFF3F4F6"
+        },
+        methodColor: {
+          GET:     "FF16A34A",
+          POST:    "FF2563EB",
+          PUT:     "FFEA580C",
+          DELETE:  "FFDC2626",
+          PATCH:   "FF9333EA",
+          HEAD:    "FF64748B",
+          OPTIONS: "FF64748B"
+        },
+        colWidths: [24, 13, 11, 24, 18, 56],
+        sectionLabel: {
+          path:   "PATH PARAMETERS",
+          header: "HEADERS",
+          query:  "QUERY PARAMETERS",
+          body:   "REQUEST BODY",
+          response: "RESPONSE"
+        }
+      };
+
+      // HTML 태그 → plain text 변환 (description 정리용)
+      function htmlToText(html) {
+        if (!html || typeof html !== "string") return html || "";
+        if (!/<[^>]+>/.test(html)) return html;
+
+        const container = document.createElement("div");
+        container.innerHTML = html;
+
+        const out = [];
+
+        function render(node, indentLevel) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent.replace(/[\n\r\t]+/g, " ");
+            if (text) out.push(text);
+            return;
+          }
+          if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+          const name = node.tagName.toLowerCase();
+          if (name === "br") { out.push("\n"); return; }
+          if (name === "hr") { out.push("\n\n"); return; }
+
+          if (name === "p" || name === "div") {
+            if (out.length && !out[out.length - 1].endsWith("\n")) out.push("\n");
+            node.childNodes.forEach((c) => render(c, indentLevel));
+            out.push("\n");
+            return;
+          }
+
+          if (/^h[1-6]$/.test(name)) {
+            if (out.length && !out[out.length - 1].endsWith("\n")) out.push("\n");
+            out.push("\n[");
+            node.childNodes.forEach((c) => render(c, indentLevel));
+            out.push("]\n");
+            return;
+          }
+
+          if (name === "ul" || name === "ol") {
+            if (out.length && !out[out.length - 1].endsWith("\n")) out.push("\n");
+            node.childNodes.forEach((c) => {
+              if (c.nodeType === Node.ELEMENT_NODE && c.tagName.toLowerCase() === "li") {
+                render(c, indentLevel + 1);
+              }
+            });
+            return;
+          }
+
+          if (name === "li") {
+            const bullet = indentLevel <= 1 ? "•" : (indentLevel === 2 ? "◦" : "▪");
+            out.push("  ".repeat(Math.max(0, indentLevel - 1)) + bullet + " ");
+            node.childNodes.forEach((c) => {
+              if (c.nodeType === Node.ELEMENT_NODE && (c.tagName.toLowerCase() === "ul" || c.tagName.toLowerCase() === "ol")) {
+                out.push("\n");
+                render(c, indentLevel);
+              } else {
+                render(c, indentLevel);
+              }
+            });
+            if (!out[out.length - 1].endsWith("\n")) out.push("\n");
+            return;
+          }
+
+          // 인라인 태그(b, strong, em, span, code 등): 내용만 살림
+          node.childNodes.forEach((c) => render(c, indentLevel));
+        }
+
+        container.childNodes.forEach((c) => render(c, 0));
+
+        // 정리
+        let text = out.join("");
+        let lines = text.split("\n").map((ln) => ln.replace(/[ \t]+/g, " ").replace(/\s+$/, ""));
+
+        // 연속 빈 줄 압축 + 앞뒤 빈 줄 제거
+        const cleaned = [];
+        let prevBlank = false;
+        for (const ln of lines) {
+          if (ln === "") {
+            if (!prevBlank) cleaned.push("");
+            prevBlank = true;
+          } else {
+            cleaned.push(ln);
+            prevBlank = false;
+          }
+        }
+        while (cleaned.length && cleaned[0] === "") cleaned.shift();
+        while (cleaned.length && cleaned[cleaned.length - 1] === "") cleaned.pop();
+        return cleaned.join("\n");
       }
 
-      function styleTable(ws, startRow, endRow, colCount) {
-        for (let r = startRow; r <= endRow; r++) {
-          const row = ws.getRow(r);
-          row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-            if (colNumber > colCount) return;
-            if (!cell.font) cell.font = baseFont;
-            if (r > startRow && !cell.fill) {
-              cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: accent.light } };
-            }
-            cell.border = {
-              top: { style: "thin", color: { argb: accent.border } },
-              bottom: { style: "thin", color: { argb: accent.border } },
-              left: { style: "thin", color: { argb: accent.border } },
-              right: { style: "thin", color: { argb: accent.border } }
-            };
-            cell.alignment = { vertical: "middle", wrapText: true };
-          });
+      function thinBorder(color) {
+        return { style: "thin", color: { argb: color } };
+      }
+
+      // 텍스트 + 한 줄 폭 기준으로 행 높이 추정
+      function estimateRowHeight(text, charsPerLine) {
+        if (!text) return 15.5;
+        let total = 0;
+        for (const line of String(text).split("\n")) {
+          if (line === "") {
+            total += 1;
+          } else {
+            let vis = 0;
+            for (const ch of line) vis += ch.charCodeAt(0) > 127 ? 2 : 1;
+            total += Math.max(1, Math.ceil(vis / charsPerLine));
+          }
         }
+        return Math.min(409, Math.max(15.5, total * 15.5 + 4));
       }
 
       function setColumnWidths(ws) {
-        const widths = [64, 18, 12, 22, 22, 50];
-        ws.columns = widths.map((w) => ({ width: w }));
+        ws.columns = MODERN.colWidths.map((w) => ({ width: w }));
       }
 
-      function addOperationSection(ws, op) {
-        const colCount = 6;
+      // dot-count 기반 nested indent (응답의 data.응답 코드 같은 경우)
+      function dotDepth(name) {
+        let d = 0;
+        for (const ch of String(name || "")) if (ch === ".") d += 1;
+        return d;
+      }
 
-        const borderRow = (rowNumber) => {
-          for (let c = 1; c <= colCount; c++) {
-            const cell = ws.getRow(rowNumber).getCell(c);
-            cell.border = {
-              top: { style: "thin", color: { argb: accent.border } },
-              bottom: { style: "thin", color: { argb: accent.border } },
-              left: { style: "thin", color: { argb: accent.border } },
-              right: { style: "thin", color: { argb: accent.border } }
-            };
+      // tag → 짧은 제목 ("|" 또는 ">" 첫 구간 제거)
+      function shortTitle(tag) {
+        if (!tag) return "";
+        if (tag.indexOf(">") !== -1) {
+          const parts = tag.split(">").map((s) => s.trim());
+          return parts.slice(1).join(" > ") || tag;
+        }
+        return tag;
+      }
+
+      // 시트 상단 헤더(타이틀 + 엔드포인트 수 + 굵은 구분선)
+      function writeSheetHeader(ws, sheetName, endpointCount) {
+        // Row 1: 큰 타이틀
+        let r = ws.addRow([sheetName]);
+        r.getCell(1).font = { name: MODERN.font.sans, bold: true, size: 20, color: { argb: MODERN.color.textHeading } };
+        r.getCell(1).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+        ws.mergeCells(r.number, 1, r.number, 6);
+        r.height = 38;
+
+        // Row 2: 부제
+        r = ws.addRow([endpointCount + " endpoints"]);
+        r.getCell(1).font = { name: MODERN.font.sans, size: 10, color: { argb: MODERN.color.textMuted } };
+        r.getCell(1).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+        ws.mergeCells(r.number, 1, r.number, 6);
+        r.height = 20;
+
+        // Row 3: 굵은 분리선
+        r = ws.addRow([""]);
+        for (let c = 1; c <= 6; c++) {
+          r.getCell(c).fill = { type: "pattern", pattern: "solid", fgColor: { argb: MODERN.color.textHeading } };
+        }
+        r.height = 3;
+
+        // Row 4: 여백
+        r = ws.addRow([""]);
+        r.height = 16;
+      }
+
+      // Quick Reference 인덱스
+      function writeQuickReference(ws, endpoints) {
+        // 섹션 헤더
+        let r = ws.addRow(["QUICK REFERENCE"]);
+        r.getCell(1).font = { name: MODERN.font.sans, bold: true, size: 9, color: { argb: MODERN.color.textMuted } };
+        r.getCell(1).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+        r.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: MODERN.color.bgSection } };
+        ws.mergeCells(r.number, 1, r.number, 6);
+        r.height = 22;
+
+        for (const ep of endpoints) {
+          const m = String(ep.method || "").toUpperCase();
+          r = ws.addRow([m, ep.path, "", "", shortTitle(ep.tagText || ""), ""]);
+
+          // A: 메서드 뱃지
+          const mc = r.getCell(1);
+          mc.font = { name: MODERN.font.sans, bold: true, size: 10, color: { argb: MODERN.color.bgWhite } };
+          mc.fill = { type: "pattern", pattern: "solid", fgColor: { argb: MODERN.methodColor[m] || MODERN.color.textMuted } };
+          mc.alignment = { horizontal: "center", vertical: "middle" };
+
+          // B(병합 B-D): 경로 (모노스페이스)
+          const pc = r.getCell(2);
+          pc.font = { name: MODERN.font.mono, size: 10, color: { argb: MODERN.color.textHeading } };
+          pc.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+          ws.mergeCells(r.number, 2, r.number, 4);
+
+          // E(병합 E-F): 짧은 제목
+          const tc = r.getCell(5);
+          tc.font = { name: MODERN.font.sans, size: 10, color: { argb: MODERN.color.textMuted } };
+          tc.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+          ws.mergeCells(r.number, 5, r.number, 6);
+
+          // 하단 미세 경계
+          for (let c = 1; c <= 6; c++) {
+            r.getCell(c).border = { bottom: thinBorder(MODERN.color.borderLight) };
           }
+          r.height = 22;
+        }
+
+        // 후 여백
+        const sp = ws.addRow([""]);
+        sp.height = 24;
+      }
+
+      // 섹션 라벨 (작은 캡스 회색 배경)
+      function writeSectionLabel(ws, label) {
+        const r = ws.addRow([label]);
+        const c = r.getCell(1);
+        c.font = { name: MODERN.font.sans, bold: true, size: 10, color: { argb: MODERN.color.textMuted } };
+        c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: MODERN.color.bgSection } };
+        c.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+        ws.mergeCells(r.number, 1, r.number, 6);
+        r.height = 24;
+      }
+
+      // 파라미터 테이블 (헤더 + 본문 행들)
+      function writeParamTable(ws, params, nested) {
+        // 컬럼 헤더
+        let r = ws.addRow(["Name", "Type", "Required", "Example", "Default", "Description"]);
+        for (let c = 1; c <= 6; c++) {
+          const cell = r.getCell(c);
+          cell.font = { name: MODERN.font.sans, bold: true, size: 9, color: { argb: MODERN.color.textHeading } };
+          cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: MODERN.color.bgTableHead } };
+          cell.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+          cell.border = { bottom: thinBorder(MODERN.color.borderSubtle) };
+        }
+        r.height = 22;
+
+        // 본문 행
+        const monoCols = new Set([1, 2, 4, 5]);
+        params.forEach((p, idx) => {
+          const altBg = idx % 2 === 1 ? MODERN.color.bgAltRow : MODERN.color.bgWhite;
+          const required = p.required === true || p.required === "Y" || p.required === "Yes";
+          const extraIndent = nested ? dotDepth(p.name) : 0;
+
+          const values = [
+            p.name || "",
+            p.type || "",
+            required ? "필수" : "",
+            p.example || "",
+            p.default || "",
+            p.description || ""
+          ];
+
+          r = ws.addRow(values);
+
+          for (let c = 1; c <= 6; c++) {
+            const cell = r.getCell(c);
+            if (c === 3) {
+              if (required) {
+                cell.font = { name: MODERN.font.sans, bold: true, size: 9, color: { argb: MODERN.color.textRequired } };
+              } else {
+                cell.font = { name: MODERN.font.sans, size: 9, color: { argb: MODERN.color.textSubtle } };
+              }
+              cell.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            } else {
+              cell.font = {
+                name: monoCols.has(c) ? MODERN.font.mono : MODERN.font.sans,
+                size: 9,
+                color: { argb: MODERN.color.textBody }
+              };
+              cell.alignment = {
+                horizontal: "left",
+                vertical: "top",
+                wrapText: true,
+                indent: 1 + (c === 1 ? extraIndent : 0)
+              };
+            }
+            cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: altBg } };
+            cell.border = { bottom: thinBorder(MODERN.color.borderLight) };
+          }
+
+          // description 길이 기반 높이
+          const h = estimateRowHeight(p.description || "", Math.floor(MODERN.colWidths[5] * 1.3));
+          r.height = Math.max(20, Math.min(h, 180));
+        });
+
+        // 섹션 후 여백
+        const sp = ws.addRow([""]);
+        sp.height = 14;
+      }
+
+      // 단일 엔드포인트 블록 작성
+      function writeEndpoint(ws, ep, isFirst) {
+        let r;
+
+        // 엔드포인트 사이 구분선
+        if (!isFirst) {
+          r = ws.addRow([""]);
+          for (let c = 1; c <= 6; c++) {
+            r.getCell(c).fill = { type: "pattern", pattern: "solid", fgColor: { argb: MODERN.color.bgDivider } };
+          }
+          r.height = 2;
+          ws.addRow([""]).height = 22;
+        }
+
+        // 1. 메서드 뱃지 + 경로
+        const m = String(ep.method || "").toUpperCase();
+        r = ws.addRow([m, ep.path]);
+        const mc = r.getCell(1);
+        mc.font = { name: MODERN.font.sans, bold: true, size: 12, color: { argb: MODERN.color.bgWhite } };
+        mc.fill = { type: "pattern", pattern: "solid", fgColor: { argb: MODERN.methodColor[m] || MODERN.color.textMuted } };
+        mc.alignment = { horizontal: "center", vertical: "middle" };
+
+        const pc = r.getCell(2);
+        pc.font = { name: MODERN.font.mono, bold: true, size: 14, color: { argb: MODERN.color.textHeading } };
+        pc.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+        ws.mergeCells(r.number, 2, r.number, 6);
+        r.height = 32;
+
+        // 2. 태그/breadcrumb
+        const tagText = ep.tagText || ep.summary || "";
+        if (tagText) {
+          r = ws.addRow([tagText]);
+          const tc = r.getCell(1);
+          tc.font = { name: MODERN.font.sans, italic: true, size: 9, color: { argb: MODERN.color.textMuted } };
+          tc.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+          ws.mergeCells(r.number, 1, r.number, 6);
+          r.height = 18;
+        }
+
+        // 여백
+        ws.addRow([""]).height = 8;
+
+        // 3. 설명 (HTML 정리)
+        const descRaw = ep.description || "";
+        const descText = htmlToText(descRaw);
+        if (descText) {
+          r = ws.addRow([descText]);
+          const dc = r.getCell(1);
+          dc.font = { name: MODERN.font.sans, size: 10, color: { argb: MODERN.color.textBody } };
+          dc.alignment = { horizontal: "left", vertical: "top", wrapText: true, indent: 1 };
+          ws.mergeCells(r.number, 1, r.number, 6);
+          const totalW = MODERN.colWidths.reduce((a, b) => a + b, 0);
+          r.height = estimateRowHeight(descText, Math.floor(totalW * 1.3));
+          ws.addRow([""]).height = 12;
+        }
+
+        // 4. 섹션들 (Headers → Path → Query → Body → Response)
+        const pathParams  = ep.parameters.filter((p) => p.in === "path");
+        const headerParams = ep.parameters.filter((p) => p.in === "header");
+        const queryParams = ep.parameters.filter((p) => p.in === "query");
+
+        const toParamRow = (p) => {
+          const schema = ep.resolveRef(p.schema) || {};
+          return {
+            name: p.name || "",
+            type: schema.type || "",
+            required: p.required ? true : false,
+            example: schema.example !== undefined
+              ? (typeof schema.example === "string" ? schema.example : JSON.stringify(schema.example))
+              : (p.example !== undefined
+                  ? (typeof p.example === "string" ? p.example : JSON.stringify(p.example))
+                  : ""),
+            default: schema.default !== undefined
+              ? (typeof schema.default === "string" ? schema.default : JSON.stringify(schema.default))
+              : "",
+            description: p.description || schema.description || ""
+          };
         };
 
-        const addSimpleTable = (title, rows) => {
-          const titleRow = ws.addRow([title]);
-          titleRow.font = { ...baseFont, bold: true, size: 12 };
-          titleRow.alignment = { vertical: "middle", horizontal: "left" };
+        const headerRows = headerParams.map(toParamRow);
+        const pathRows   = pathParams.map(toParamRow);
+        const queryRows  = queryParams.map(toParamRow);
 
-          ws.addRow(["Name", "Type", "Mandatory", "Example", "Default", "Description"]);
-          const headerRow = ws.lastRow;
-          setHeaderStyle(headerRow, 6);
-          const headerIdx = headerRow.number;
-
-          if (!rows || rows.length === 0) {
-            ws.addRow(["(none)", "", "", "", "", ""]);
-          } else {
-            rows.forEach((r) => {
-              ws.addRow([r.name, r.type, r.mandatory, r.example, r.default, r.description]);
-            });
-          }
-
-          styleTable(ws, headerIdx, ws.lastRow.number, 6);
-          ws.addRow([]);
-        };
-
-        const operationTitle = ws.addRow([op.method.toUpperCase() + " " + op.path, op.summary || ""]);
-        operationTitle.font = { ...baseFont, bold: true, size: 14 };
-        operationTitle.alignment = { vertical: "middle", horizontal: "left" };
-        borderRow(operationTitle.number);
-
-        ws.addRow(["", op.description || ""]);
-        borderRow(ws.lastRow.number);
-
-        const toRowsFromParams = (params) =>
-          params.map((p) => {
-            const schema = op.resolveRef(p.schema) || {};
-            return {
-              name: p.name || "",
-              type: schema.type || "",
-              mandatory: p.required ? "Y" : "",
-              example: schema.example !== undefined ? JSON.stringify(schema.example) : p.example !== undefined ? JSON.stringify(p.example) : "",
-              default: schema.default !== undefined ? JSON.stringify(schema.default) : "",
-              description: p.description || schema.description || ""
-            };
-          });
-
+        // Body schema flatten
         const bodyRows = (() => {
-          const reqBody = op.requestBody && op.resolveRef(op.requestBody);
+          const reqBody = ep.requestBody && ep.resolveRef(ep.requestBody);
           if (!reqBody || !reqBody.content) return [];
           const media = reqBody.content["application/json"] || Object.values(reqBody.content)[0];
           if (!media || !media.schema) return [];
-          return flattenSchema(media.schema, op.resolveRef).map((r) => ({
-            name: r.name,
-            type: r.type,
-            mandatory: r.required === "Yes" ? "Y" : "",
-            example: r.example,
-            default: r.default,
-            description: r.description
+          return flattenSchema(media.schema, ep.resolveRef).map((rw) => ({
+            name: rw.name,
+            type: rw.type,
+            required: rw.required === "Yes",
+            example: rw.example,
+            default: rw.default,
+            description: rw.description
           }));
         })();
 
-        const queryRows = toRowsFromParams(op.parameters.filter((p) => p.in === "query"));
-        const headerRows = toRowsFromParams(op.parameters.filter((p) => p.in === "header"));
-
+        // Response schema flatten (200 우선)
         const responseRows = (() => {
-          const preferred = op.responses["200"] || op.responses["201"] || Object.values(op.responses || {})[0];
-          const resolved = op.resolveRef(preferred) || {};
+          const preferred = ep.responses["200"] || ep.responses["201"] || Object.values(ep.responses || {})[0];
+          const resolved = ep.resolveRef(preferred) || {};
           if (!resolved.content) return [];
           const media = resolved.content["application/json"] || Object.values(resolved.content)[0];
           if (!media || !media.schema) return [];
-          return flattenSchema(media.schema, op.resolveRef).map((r) => ({
-            name: r.name,
-            type: r.type,
-            mandatory: r.required === "Yes" ? "Y" : "",
-            example: r.example,
-            default: r.default,
-            description: r.description
+          return flattenSchema(media.schema, ep.resolveRef).map((rw) => ({
+            name: rw.name,
+            type: rw.type,
+            required: rw.required === "Yes",
+            example: rw.example,
+            default: rw.default,
+            description: rw.description
           }));
         })();
 
-        addSimpleTable("Body", bodyRows);
-        addSimpleTable("Query String", queryRows);
-        if (headerRows.length) addSimpleTable("Headers", headerRows);
-        addSimpleTable("Response Parameters", responseRows);
-
-        ws.addRow([]);
-        ws.addRow([]);
+        if (headerRows.length) {
+          writeSectionLabel(ws, MODERN.sectionLabel.header);
+          writeParamTable(ws, headerRows, false);
+        }
+        if (pathRows.length) {
+          writeSectionLabel(ws, MODERN.sectionLabel.path);
+          writeParamTable(ws, pathRows, false);
+        }
+        if (queryRows.length) {
+          writeSectionLabel(ws, MODERN.sectionLabel.query);
+          writeParamTable(ws, queryRows, false);
+        }
+        if (bodyRows.length) {
+          writeSectionLabel(ws, MODERN.sectionLabel.body);
+          writeParamTable(ws, bodyRows, true);
+        }
+        if (responseRows.length) {
+          writeSectionLabel(ws, MODERN.sectionLabel.response);
+          writeParamTable(ws, responseRows, true);
+        }
       }
 
       function generateWorkbook(spec) {
         const wb = new ExcelJS.Workbook();
-        wb.creator = "openapi_2_excel_browser";
+        wb.creator = "openapi_2_excel_modern";
         wb.created = new Date();
 
         const resolveRef = buildResolver(spec);
         const byTag = collectOperations(spec, resolveRef);
 
+        // 각 엔드포인트에 tagText(=summary)를 부여하여 breadcrumb 표시에 사용
+        byTag.forEach((ops) => {
+          ops.forEach((op) => {
+            op.tagText = op.summary || "";
+          });
+        });
+
         for (const [tag, ops] of byTag.entries()) {
-          const sheetName = tag.substring(0, 31) || "Sheet";
-          const ws = wb.addWorksheet(sheetName);
+          const sheetName = (tag.substring(0, 31) || "Sheet").replace(/[\\/?*\[\]:]/g, "_");
+          const ws = wb.addWorksheet(sheetName, {
+            views: [{ state: "frozen", xSplit: 0, ySplit: 4, showGridLines: false }],
+            pageSetup: {
+              orientation: "landscape",
+              fitToPage: true,
+              fitToWidth: 1,
+              fitToHeight: 0,
+              margins: { left: 0.3, right: 0.3, top: 0.4, bottom: 0.4, header: 0.3, footer: 0.3 }
+            }
+          });
           setColumnWidths(ws);
-          ops.forEach((op) => addOperationSection(ws, op));
+
+          writeSheetHeader(ws, tag, ops.length);
+          writeQuickReference(ws, ops);
+          ops.forEach((op, i) => writeEndpoint(ws, op, i === 0));
         }
 
         if (wb.worksheets.length === 0) {
