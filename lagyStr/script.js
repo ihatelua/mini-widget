@@ -1,11 +1,16 @@
+// 특수문자 셋: 따옴표·백슬래시·백틱은 셸/코드 삽입 시 이스케이프가 번거로워 제외
+var SPECIAL_CHARS = '!@#$%^&*()-_=+[]{}|;:,.<>?/~';
+
 var RandomString = function(type, length) {
     var i = 0;
     this.charList = [];
     this.length = length || 4;
     type = type || '1aA';
 
-    if (type.indexOf('i') !== -1) {
-        this.charList.push('I', 'l');
+    if (type.indexOf('!') !== -1) {
+        for (i = 0; i < SPECIAL_CHARS.length; i++) {
+            this.charList.push(SPECIAL_CHARS.charAt(i));
+        }
     }
 
     if (type.indexOf('a') !== -1) {

@@ -312,9 +312,9 @@
               <span class="chip-name">숫자 (0-9)</span>
               <span class="chip-dot"></span>
             </label>
-            <label class="chip" for="barcode">
-              <input type="checkbox" id="barcode" />
-              <span class="chip-name">유사문자 포함 (I, l)</span>
+            <label class="chip" for="special">
+              <input type="checkbox" id="special" />
+              <span class="chip-name">특수문자 (!@#$…)</span>
               <span class="chip-dot"></span>
             </label>
           </div>
@@ -352,7 +352,7 @@
       var number = document.getElementById("nu");
       var smallEn = document.getElementById("smallEn");
       var largeEn = document.getElementById("largeEn");
-      var barcode = document.getElementById("barcode");
+      var special = document.getElementById("special");
       var txtRandLength = document.getElementById("txtRandLength");
       var resultBox = document.getElementById("resultBox");
       var statusText = document.getElementById("statusText");
@@ -362,7 +362,7 @@
         val += number.checked ? "1" : "";
         val += smallEn.checked ? "a" : "";
         val += largeEn.checked ? "A" : "";
-        val += barcode.checked ? "i" : "";
+        val += special.checked ? "!" : "";
         return val;
       }
 
